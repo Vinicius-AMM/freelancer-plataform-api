@@ -1,6 +1,7 @@
 package com.manager.freelancer_management_api.controller;
 
 import com.manager.freelancer_management_api.domain.dto.ApiResponseDTO;
+import com.manager.freelancer_management_api.domain.dto.DTOValidationErrorResponse;
 import com.manager.freelancer_management_api.domain.user.dto.request.*;
 import com.manager.freelancer_management_api.domain.user.dto.response.OtherUserProfileDTO;
 import com.manager.freelancer_management_api.domain.user.dto.response.UserProfileDTO;
@@ -38,10 +39,18 @@ public class UserController {
     @GetMapping("/{id}/profile")
     @Operation(summary = "Busca o perfil de usuário", description = "Retorna o perfil com propriedades diferentes caso seja o perfil próprio ou perfil de outro usuário")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Perfil encontrado com sucesso",
+            @ApiResponse(responseCode = "200", description = "Perfil do usuário autenticado encontrado com sucesso",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(oneOf = {UserProfileDTO.class, OtherUserProfileDTO.class}))),
+                            schema = @Schema(oneOf = {UserProfileDTO.class, OtherUserProfileDTO.class}),
+                            examples = {@ExampleObject(
+                                    name = "Own user profile",
+                                    value = "{\"fullName\": \"Full Name\", \"email\": \"test@test.com\", \"document\": \"12345678901\", \"mainUserRole\": \"FREELANCER\", \"currentUserRole\": \"CLIENT\"}"),
+                                    @ExampleObject(
+                                            name = "Other user profile",
+                                            value = "{\"fullName\": \"Full Name\", \"mainUserRole\": \"FREELANCER\", \"currentUserRole\": \"CLIENT\"}"
+                                    )}
+                    )),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado",
                     content = @Content(
                             mediaType = "application/json",
@@ -57,22 +66,35 @@ public class UserController {
     @Operation(summary = "Altera o nome completo do usuário")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Nome completo atualizado com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDTO.class))),
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 200, \"message\": \"Full name updated successfully\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}")
+                    )),
             @ApiResponse(responseCode = "401", description = "Não autenticado",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiResponseDTO.class),
-                            examples = @ExampleObject(value = "{\"statusCode\": 401, \"message\": \"Access denied.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+                            examples = @ExampleObject(value = "{\"statusCode\": 401, \"message\": \"Access denied.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}")
+                    )),
+            @ApiResponse(responseCode = "400", description = "Requisição inválida (falha na validação do DTO)",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = DTOValidationErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 400, \"errors\": {\"newFullName\": \"Full name cannot be empty.\"}, \"timestamp\": \"2025-04-02T02:28:59.409Z\"}")
+                    )),
             @ApiResponse(responseCode = "403", description = "Não autorizado (ao tentar atualizar dados de outro usuário)",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiResponseDTO.class),
-                            examples = @ExampleObject(value = "{\"statusCode\": 403, \"message\": \"Access denied.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+                            examples = @ExampleObject(value = "{\"statusCode\": 403, \"message\": \"Access denied.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}")
+                    )),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiResponseDTO.class),
-                            examples = @ExampleObject(value = "{\"statusCode\": 404, \"message\": \"User not found\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}")))
+                            examples = @ExampleObject(value = "{\"statusCode\": 404, \"message\": \"User not found\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}")
+                    ))
     })
     public ResponseEntity<ApiResponseDTO> updateFullName(@PathVariable UUID id, @RequestBody @Valid FullNameUpdateRequestDTO request) {
         userService.updateFullName(id, request.newFullName());
@@ -83,17 +105,20 @@ public class UserController {
     @Operation(summary = "Atualiza o e-mail do usuário", description = "Permite que o usuário autenticado atualize seu próprio e-mail, requerendo a senha atual.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "E-mail atualizado com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDTO.class))),
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 200, \"message\": \"Email updated successfully\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
             @ApiResponse(responseCode = "400", description = "Requisição inválida (falha na validação do DTO)",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ApiResponseDTO.class),
-                            examples = @ExampleObject(value = "{\"statusCode\": 400, \"message\": \"Bad Request\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
-            @ApiResponse(responseCode = "401", description = "Credenciais inválidas (email ou senha incorretos)",
+                            schema = @Schema(implementation = DTOValidationErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 400, \"errors\": {\"email\": \"Invalid email format\", \"password\": \"Fill in this field\"}, \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+            @ApiResponse(responseCode = "401", description = "Credenciais inválidas (senha incorretos)",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiResponseDTO.class),
-                            examples = @ExampleObject(value = "{\"statusCode\": 401, \"message\": \"Access denied.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+                            examples = @ExampleObject(value = "{\"statusCode\": 401, \"message\": \"Invalid password.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
             @ApiResponse(responseCode = "403", description = "Não autorizado (tentando atualizar dados de outro usuário)",
                     content = @Content(
                             mediaType = "application/json",
@@ -118,12 +143,15 @@ public class UserController {
     @Operation(summary = "Atualiza o documento do usuário", description = "Permite que o usuário autenticado atualize seu próprio documento (CPF/CNPJ), requerendo a senha atual.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Documento atualizado com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Requisição inválida (falha na validação do DTO) ou documento inválido/já existente.",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiResponseDTO.class),
-                            examples = @ExampleObject(value = "{\"statusCode\": 400, \"message\": \"Invalid document.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+                            examples = @ExampleObject(value = "{\"statusCode\": 200, \"message\": \"Document updated successfully\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+            @ApiResponse(responseCode = "400", description = "Requisição inválida (falha na validação do DTO).",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = DTOValidationErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 400, \"errors\": {\"newDocument\": \"New document cannot be empty.\"}, \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
             @ApiResponse(responseCode = "401", description = "Credenciais inválidas (senha incorreta)",
                     content = @Content(
                             mediaType = "application/json",
@@ -149,17 +177,18 @@ public class UserController {
     @Operation(summary = "Atualiza a senha do usuário", description = "Permite que o usuário autenticado atualize sua própria senha, requerendo a senha antiga.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Senha atualizada com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDTO.class))),
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 200, \"message\": \"Password updated successfully\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
             @ApiResponse(responseCode = "400", description = "Requisição inválida (falha na validação do DTO)",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ApiResponseDTO.class),
-                            examples = @ExampleObject(value = "{\"statusCode\": 400, \"message\": \"Bad Request.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+                            schema = @Schema(implementation = DTOValidationErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 400, \"errors\": {\"newPassword\": \"The password must have at least 6 characters.\"}, \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
             @ApiResponse(responseCode = "401", description = "Credenciais inválidas (email ou senha incorretos)",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiResponseDTO.class),
-                            examples = @ExampleObject(value = "{\"statusCode\": 401, \"message\": \"Invalid email or password.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+                            examples = @ExampleObject(value = "{\"statusCode\": 401, \"message\": \"Invalid password.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
             @ApiResponse(responseCode = "403", description = "Não autorizado (tentando atualizar dados de outro usuário)",
                     content = @Content(
                             mediaType = "application/json",
@@ -184,11 +213,14 @@ public class UserController {
     @Operation(summary = "Altera o papel atual do usuário", description = "Permite que o usuário autenticado altere sua função atual na plataforma (ex: CLIENTE para FREELANCER).")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Função atualizado com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Requisição inválida (falha na validação do DTO) ou função de usuário inválida.",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 200, \"message\": \"Role updated successfully\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+            @ApiResponse(responseCode = "400", description = "Requisição inválida (falha na validação do DTO) ou função de usuário inválida.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponse.class),
                             examples = @ExampleObject(value = "{\"statusCode\": 400, \"message\": \"Invalid role. Valid roles are CLIENT or FREELANCER.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
             @ApiResponse(responseCode = "403", description = "Não autorizado (tentando atualizar dados de outro usuário)",
                     content = @Content(
@@ -210,12 +242,15 @@ public class UserController {
     @Operation(summary = "Exclui a conta do usuário", description = "Permite que o usuário autenticado exclua apenas sua própria conta, requerendo a senha atual.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Usuário excluído com sucesso",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Requisição inválida (falha na validação do DTO)",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiResponseDTO.class),
-                            examples = @ExampleObject(value = "{\"statusCode\": 400, \"message\": \"User not found\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+                            examples = @ExampleObject(value = "{\"statusCode\": 200, \"message\": \"User deleted successfully\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+            @ApiResponse(responseCode = "400", description = "Requisição inválida (falha na validação do DTO)",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = DTOValidationErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 400, \"errors\": {\"password\": \"Password must not be null.\"}, \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
             @ApiResponse(responseCode = "401", description = "Credenciais inválidas (senha inválida)",
                     content = @Content(
                             mediaType = "application/json",
