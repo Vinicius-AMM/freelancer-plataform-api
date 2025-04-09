@@ -1,22 +1,23 @@
 package com.manager.freelancer_management_api.infra.handler;
 
 import com.manager.freelancer_management_api.domain.dto.ApiResponseDTO;
+import com.manager.freelancer_management_api.domain.dto.DTOValidationErrorResponse;
 import com.manager.freelancer_management_api.domain.exceptions.UnauthorizedAccessException;
 import com.manager.freelancer_management_api.domain.user.exceptions.*;
 import com.manager.freelancer_management_api.utils.handler.ApiResponseUtil;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import static com.manager.freelancer_management_api.utils.handler.ApiResponseUtil.buildErrorResponse;
 
 @ControllerAdvice
 @Import(ApiResponseUtil.class)
-public class UserExceptionHandler extends ResponseEntityExceptionHandler {
+public class UserExceptionHandler {
     private static final String INVALID_CREDENTIALS_MESSAGE = "Invalid email or password.";
 
     @ExceptionHandler(UnauthorizedAccessException.class)
@@ -46,11 +47,6 @@ public class UserExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(SamePasswordException.class)
     public ResponseEntity<ApiResponseDTO> samePasswordHandler(SamePasswordException e){
         return buildErrorResponse(HttpStatus.CONFLICT, e.getMessage());
-    }
-
-    @ExceptionHandler({UsernameNotFoundException.class})
-    public ResponseEntity<ApiResponseDTO> usernameNotFoundExceptionHandler(UsernameNotFoundException e){
-        return buildErrorResponse(HttpStatus.UNAUTHORIZED, INVALID_CREDENTIALS_MESSAGE);
     }
 
     @ExceptionHandler(InvalidEmailException.class)
