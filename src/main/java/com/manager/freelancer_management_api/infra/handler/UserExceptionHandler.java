@@ -13,6 +13,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import static com.manager.freelancer_management_api.utils.handler.ApiResponseUtil.buildErrorResponse;
 
 @ControllerAdvice
@@ -57,5 +60,14 @@ public class UserExceptionHandler {
     @ExceptionHandler(InvalidPasswordException.class)
     public ResponseEntity<ApiResponseDTO> invalidPasswordHandler(InvalidPasswordException e){
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, e.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<DTOValidationErrorResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
+                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage, (message1, message2) -> message1));
+
+        DTOValidationErrorResponse response = new DTOValidationErrorResponse(HttpStatus.BAD_REQUEST, errors);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 }
