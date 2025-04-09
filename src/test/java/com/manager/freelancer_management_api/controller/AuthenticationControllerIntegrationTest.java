@@ -61,7 +61,6 @@ class AuthenticationControllerIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("POST /auth/register - Should return Conflict when email already exists")
     void register_shouldReturnConflict_whenEmailExists() throws Exception {
-        // 1. Register a user first
         RegisterUserRequestDTO firstRequest = new RegisterUserRequestDTO(
                 "Existing User", "55566677788", "conflict@example.com", "password123", UserRole.CLIENT, null);
         mockMvc.perform(post(REGISTER_URL)
@@ -69,7 +68,6 @@ class AuthenticationControllerIntegrationTest extends AbstractIntegrationTest {
                         .content(objectMapper.writeValueAsString(firstRequest)))
                 .andExpect(status().isCreated());
 
-        // 2. Try registering again with the same email
         RegisterUserRequestDTO secondRequest = new RegisterUserRequestDTO(
                 "Another User", "99988877766", "conflict@example.com", "password456", UserRole.FREELANCER, null);
         mockMvc.perform(post(REGISTER_URL)
@@ -77,7 +75,7 @@ class AuthenticationControllerIntegrationTest extends AbstractIntegrationTest {
                         .content(objectMapper.writeValueAsString(secondRequest)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.statusCode", is(409)))
-                .andExpect(jsonPath("$.message", containsString("Invalid email address."))); // Check specific handler message
+                .andExpect(jsonPath("$.message", containsString("Invalid email address.")));
     }
 
     @Test
