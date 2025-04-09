@@ -3,9 +3,12 @@ package com.manager.freelancer_management_api.config;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.models.media.Schema;
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Map;
 
 @Configuration
 @OpenAPIDefinition(info = @Info(title = "Plataforma de Gestão de Projetos Freelancers",
@@ -15,7 +18,15 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
     @Bean
     public OpenApiCustomizer removeClassFieldFromSwagger() {
-        return openApi -> openApi.getComponents().getSchemas().values()
-                .forEach(schema -> schema.getProperties().remove("@class"));
+        return openApi -> {
+            if (openApi.getComponents() != null && openApi.getComponents().getSchemas() != null) {
+                openApi.getComponents().getSchemas().values().forEach(schema -> {
+                    Map<String, Schema> properties = schema.getProperties();
+                    if (properties != null) {
+                        properties.remove("@class");
+                    }
+                });
+            }
+        };
     }
 }
