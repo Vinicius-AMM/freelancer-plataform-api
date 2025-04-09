@@ -5,5 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 
 @Schema(description = "DTO para atualização do nome completo do usuário")
 public record FullNameUpdateRequestDTO(@Schema(example = "New Full Name")
-                                       @NotBlank String newFullName) {
+                                       @NotBlank(message = "Full name cannot be empty.")
+                                       String newFullName) {
 }
