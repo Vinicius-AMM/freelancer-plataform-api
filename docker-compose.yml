@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: bitnami/postgresql:16
+    container_name: postgresql-container
+    ports:
+      - '5433:5432'
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=freelancer_management_db
+    volumes:
+      - freelancer_pg_data:/bitnami/postgresql
+
+  redis:
+    image: bitnami/redis:7.4.2
+    container_name: redis-container
+    restart: always
+    environment:
+      - REDIS_PASSWORD=admin
+    ports:
+      - '6379:6379'
+    volumes:
+      - freelancer_redis_data:/bitnami/redis
+
+volumes:
+  freelancer_pg_data:
+  freelancer_redis_data:
