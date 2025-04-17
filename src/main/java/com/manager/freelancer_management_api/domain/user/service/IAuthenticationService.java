@@ -1,4 +1,4 @@
-package com.manager.freelancer_management_api.services;
+package com.manager.freelancer_management_api.domain.user.service;
 
 import com.manager.freelancer_management_api.domain.user.dto.request.LoginRequestDTO;
 import com.manager.freelancer_management_api.domain.user.dto.request.RegisterUserRequestDTO;

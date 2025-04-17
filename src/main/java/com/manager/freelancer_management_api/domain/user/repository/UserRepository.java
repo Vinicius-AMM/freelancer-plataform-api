@@ -1,6 +1,6 @@
-package com.manager.freelancer_management_api.domain.repositories;
+package com.manager.freelancer_management_api.domain.user.repository;
 
-import com.manager.freelancer_management_api.domain.user.entities.User;
+import com.manager.freelancer_management_api.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;

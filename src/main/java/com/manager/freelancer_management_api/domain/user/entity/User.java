@@ -1,4 +1,4 @@
-package com.manager.freelancer_management_api.domain.user.entities;
+package com.manager.freelancer_management_api.domain.user.entity;
 
 import com.manager.freelancer_management_api.domain.user.enums.UserRole;
 import jakarta.persistence.*;

@@ -1,14 +1,14 @@
-package com.manager.freelancer_management_api.services.impl;
+package com.manager.freelancer_management_api.domain.user.service.impl;
 
-import com.manager.freelancer_management_api.domain.repositories.UserRepository;
+import com.manager.freelancer_management_api.domain.user.repository.UserRepository;
 import com.manager.freelancer_management_api.domain.user.dto.request.LoginRequestDTO;
 import com.manager.freelancer_management_api.domain.user.dto.request.RegisterUserRequestDTO;
 import com.manager.freelancer_management_api.domain.user.dto.response.LoginResponseDTO;
-import com.manager.freelancer_management_api.domain.user.entities.User;
+import com.manager.freelancer_management_api.domain.user.entity.User;
 import com.manager.freelancer_management_api.domain.user.exceptions.EmailAlreadyExistsException;
 import com.manager.freelancer_management_api.domain.user.exceptions.InvalidEmailException;
 import com.manager.freelancer_management_api.infra.security.TokenService;
-import com.manager.freelancer_management_api.services.IAuthenticationService;
+import com.manager.freelancer_management_api.domain.user.service.IAuthenticationService;
 import com.manager.freelancer_management_api.utils.validator.PasswordValidator;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

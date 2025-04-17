@@ -1,4 +1,4 @@
-package com.manager.freelancer_management_api.domain.exceptions;
+package com.manager.freelancer_management_api.domain.global.exceptions;
 
 public class PrivateKeyLoadException extends RuntimeException {
     public PrivateKeyLoadException(String message) {

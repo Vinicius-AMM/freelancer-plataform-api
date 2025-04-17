@@ -1,4 +1,4 @@
-package com.manager.freelancer_management_api.domain.dto;
+package com.manager.freelancer_management_api.domain.global.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;

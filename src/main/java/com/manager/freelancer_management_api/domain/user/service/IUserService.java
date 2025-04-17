@@ -1,7 +1,7 @@
-package com.manager.freelancer_management_api.services;
+package com.manager.freelancer_management_api.domain.user.service;
 
 import com.manager.freelancer_management_api.domain.user.dto.response.UserProfileResponseDTO;
-import com.manager.freelancer_management_api.domain.user.entities.User;
+import com.manager.freelancer_management_api.domain.user.entity.User;
 
 import java.util.UUID;
 
