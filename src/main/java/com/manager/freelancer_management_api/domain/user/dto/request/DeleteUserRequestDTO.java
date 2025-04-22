@@ -6,6 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 @Schema(description = "DTO para o deletar um usuário")
 public record DeleteUserRequestDTO(
         @Schema(example = "password")
-        @NotBlank(message = "Password must not be null.")
+        @NotBlank(message = "Password must not be empty.")
         String password) {
 }
