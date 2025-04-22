@@ -1,10 +1,10 @@
-package com.manager.freelancer_management_api.services.impl;
+package com.manager.freelancer_management_api.domain.user.service.impl;
 
-import com.manager.freelancer_management_api.domain.repositories.UserRepository;
+import com.manager.freelancer_management_api.domain.user.repository.UserRepository;
 import com.manager.freelancer_management_api.domain.user.dto.response.OtherUserProfileDTO;
 import com.manager.freelancer_management_api.domain.user.dto.response.UserProfileDTO;
 import com.manager.freelancer_management_api.domain.user.dto.response.UserProfileResponseDTO;
-import com.manager.freelancer_management_api.domain.user.entities.User;
+import com.manager.freelancer_management_api.domain.user.entity.User;
 import com.manager.freelancer_management_api.domain.user.enums.UserRole;
 import com.manager.freelancer_management_api.domain.user.exceptions.*;
 import com.manager.freelancer_management_api.utils.validator.PasswordValidator;
