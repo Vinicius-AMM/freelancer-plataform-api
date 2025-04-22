@@ -1,7 +1,7 @@
 package com.manager.freelancer_management_api.controller;
 
 import com.manager.freelancer_management_api.config.AbstractIntegrationTest;
-import com.manager.freelancer_management_api.domain.repositories.UserRepository;
+import com.manager.freelancer_management_api.domain.user.repository.UserRepository;
 import com.manager.freelancer_management_api.domain.user.dto.request.LoginRequestDTO;
 import com.manager.freelancer_management_api.domain.user.dto.request.RegisterUserRequestDTO;
 import com.manager.freelancer_management_api.domain.user.enums.UserRole;
