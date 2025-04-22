@@ -3,6 +3,7 @@ package com.manager.freelancer_management_api.domain.global.dto;
 import com.manager.freelancer_management_api.domain.global.entities.Deadline;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
@@ -12,7 +13,7 @@ public record DeadlineResponseDTO(@Schema(example = "2025-04-01")
                                   LocalDate endDate,
                                   @Schema(example = "30")
                                   long durationInDays
-) {
+) implements Serializable {
     public DeadlineResponseDTO(Deadline deadline){
         this(deadline.getStartDate(),
                 deadline.getEndDate(),
