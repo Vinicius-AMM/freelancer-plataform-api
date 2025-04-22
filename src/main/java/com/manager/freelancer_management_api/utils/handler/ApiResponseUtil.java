@@ -1,6 +1,6 @@
 package com.manager.freelancer_management_api.utils.handler;
 
-import com.manager.freelancer_management_api.domain.dto.ApiResponseDTO;
+import com.manager.freelancer_management_api.domain.global.dto.ApiResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
