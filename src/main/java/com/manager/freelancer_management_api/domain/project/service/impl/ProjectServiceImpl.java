@@ -1,13 +1,13 @@
 package com.manager.freelancer_management_api.domain.project.service.impl;
 
-import com.manager.freelancer_management_api.domain.global.entities.Deadline;
 import com.manager.freelancer_management_api.domain.project.dto.request.CreateProjectRequestDTO;
+import com.manager.freelancer_management_api.domain.project.dto.request.UpdateProjectRequestDTO;
 import com.manager.freelancer_management_api.domain.project.dto.response.ProjectResponseDTO;
 import com.manager.freelancer_management_api.domain.project.entity.Project;
-import com.manager.freelancer_management_api.domain.project.enums.ProjectStatus;
 import com.manager.freelancer_management_api.domain.project.repositories.ProjectRepository;
 import com.manager.freelancer_management_api.domain.project.service.IProjectService;
 import com.manager.freelancer_management_api.domain.project.utils.ProjectAccessHelper;
+import com.manager.freelancer_management_api.domain.project.utils.ProjectUpdateHelper;
 import com.manager.freelancer_management_api.domain.user.entity.User;
 import com.manager.freelancer_management_api.domain.user.service.IUserService;
 import com.manager.freelancer_management_api.utils.validator.PasswordValidator;
@@ -18,7 +18,6 @@ import org.springframework.data.domain.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -31,13 +30,15 @@ public class ProjectServiceImpl implements IProjectService {
 
     private final ProjectRepository projectRepository;
     private final ProjectAccessHelper projectAccessHelper;
+    private final ProjectUpdateHelper projectUpdateHelper;
     private final PasswordValidator passwordValidator;
     private final UserAccessValidator userAccessValidator;
     private final IUserService userService;
 
-    public ProjectServiceImpl(ProjectRepository projectRepository, ProjectAccessHelper projectAccessHelper, PasswordValidator passwordValidator, UserAccessValidator userAccessValidator, IUserService userService) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, ProjectAccessHelper projectAccessHelper, ProjectUpdateHelper projectUpdateHelper, PasswordValidator passwordValidator, UserAccessValidator userAccessValidator, IUserService userService) {
         this.projectRepository = projectRepository;
         this.projectAccessHelper = projectAccessHelper;
+        this.projectUpdateHelper = projectUpdateHelper;
         this.passwordValidator = passwordValidator;
         this.userAccessValidator = userAccessValidator;
         this.userService = userService;
@@ -81,59 +82,22 @@ public class ProjectServiceImpl implements IProjectService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('CLIENT')")
-    @CachePut(value = "getProjectCache", key = "#projectId")
-    public void updateTitle(Long projectId, String newTitle) {
+    @CacheEvict(value = "getProjectCache", key = "#projectId")
+    public void updateProject(Long projectId, UpdateProjectRequestDTO updateData) {
         Project project = projectAccessHelper.findProjectAndValidateOwnership(projectId);
-        project.setTitle(newTitle);
-        projectRepository.save(project);
+
+        boolean updated = projectUpdateHelper.updateSimpleFields(project, updateData);
+        updated |= projectUpdateHelper.updateDeadlineIfNecessary(project, updateData);
+
+        if (updated) {
+            projectRepository.save(project);
+        }
     }
 
     @Override
     @Transactional
     @PreAuthorize("hasRole('CLIENT')")
-    @CachePut(value = "getProjectCache", key = "#projectId")
-    public void updateDescription(Long projectId, String newDescription) {
-        Project project = projectAccessHelper.findProjectAndValidateOwnership(projectId);
-        project.setDescription(newDescription);
-        projectRepository.save(project);
-    }
-
-    @Override
-    @Transactional
-    @PreAuthorize("hasRole('CLIENT')")
-    @CachePut(value = "getProjectCache", key = "#projectId")
-    public void updateDeadline(Long projectId, Deadline newDeadline) {
-        Project project = projectAccessHelper.findProjectAndValidateOwnership(projectId);
-        project.setDeadline(newDeadline);
-        projectRepository.save(project);
-    }
-
-    @Override
-    @PreAuthorize("hasRole('CLIENT')")
-    @CachePut(value = "getProjectCache", key = "#projectId")
-    public void updateEstimatedBudget(Long projectId, BigDecimal newEstimatedBudget) {
-        Project project = projectAccessHelper.findProjectAndValidateOwnership(projectId);
-        project.setEstimatedBudget(newEstimatedBudget);
-        projectRepository.save(project);
-    }
-
-    @Override
-    @Transactional
-    @PreAuthorize("hasRole('CLIENT')")
-    @CachePut(value = "getProjectCache", key = "#projectId")
-    public void updateStatus(Long projectId, ProjectStatus newStatus) {
-        Project project = projectAccessHelper.findProjectAndValidateOwnership(projectId);
-        project.setStatus(newStatus);
-        projectRepository.save(project);
-    }
-
-    @Override
-    @Transactional
-    @PreAuthorize("hasRole('CLIENT')")
-    @Caching(evict = {
-            @CacheEvict(value = "getProjectCache", key = "#projectId"),
-            @CacheEvict(value = "getProjectsCache", key = "#projectId")
-    })
+    @CacheEvict(value = "getProjectCache", key = "#projectId")
     public void deleteProject(Long projectId, String rawPassword) {
         Project project = projectAccessHelper.findProjectAndValidateOwnership(projectId);
         User owner = project.getUser();
