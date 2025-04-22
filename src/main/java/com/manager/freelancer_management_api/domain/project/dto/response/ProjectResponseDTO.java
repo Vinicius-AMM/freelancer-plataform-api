@@ -1,12 +1,12 @@
 package com.manager.freelancer_management_api.domain.project.dto.response;
 
 import com.manager.freelancer_management_api.domain.global.dto.DeadlineResponseDTO;
-import com.manager.freelancer_management_api.domain.global.entities.Deadline;
 import com.manager.freelancer_management_api.domain.project.entity.Project;
 import com.manager.freelancer_management_api.domain.project.enums.ProjectStatus;
 import com.manager.freelancer_management_api.domain.user.dto.response.OtherUserProfileDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -24,7 +24,7 @@ public record ProjectResponseDTO(@Schema(example = "Desenvolvimento de API")
                                  LocalDateTime createdAt,
                                  @Schema(description = "perfil resumido do dono do projeto")
                                  OtherUserProfileDTO projectOwnerProfile
-) {
+) implements Serializable {
     public ProjectResponseDTO(Project project) {
         this(
                 project.getTitle(),
