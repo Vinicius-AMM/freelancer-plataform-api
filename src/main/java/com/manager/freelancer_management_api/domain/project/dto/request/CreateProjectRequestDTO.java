@@ -20,12 +20,12 @@ public record CreateProjectRequestDTO(@Schema(description = "Título do projeto"
                                       @NotBlank(message = "Description cannot be blank")
                                       String description,
 
-                                      @Schema(description = "Data de início do projeto", example = "2025-04-10")
+                                      @Schema(description = "Data de início do projeto", example = "2028-05-25")
                                       @NotNull(message = "Start date cannot be null")
                                       @FutureOrPresent(message = "Start date must be in the present or future")
                                       LocalDate startDate,
 
-                                      @Schema(description = "Data de fim do projeto", example = "2025-05-10")
+                                      @Schema(description = "Data de fim do projeto", example = "2028-06-25")
                                       @NotNull(message = "End date cannot be null")
                                       @Future(message = "End date must be in the future")
                                       LocalDate endDate,
