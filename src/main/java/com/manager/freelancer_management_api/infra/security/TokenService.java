@@ -1,9 +1,9 @@
 package com.manager.freelancer_management_api.infra.security;
 
-import com.manager.freelancer_management_api.domain.exceptions.InvalidTokenException;
-import com.manager.freelancer_management_api.domain.repositories.UserRepository;
+import com.manager.freelancer_management_api.domain.global.exceptions.InvalidTokenException;
+import com.manager.freelancer_management_api.domain.user.repository.UserRepository;
 import com.manager.freelancer_management_api.domain.user.dto.request.LoginRequestDTO;
-import com.manager.freelancer_management_api.domain.user.entities.User;
+import com.manager.freelancer_management_api.domain.user.entity.User;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
