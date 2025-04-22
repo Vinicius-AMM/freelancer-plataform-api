@@ -1,6 +1,6 @@
 package com.manager.freelancer_management_api.domain.user.exceptions;
 
-import com.manager.freelancer_management_api.domain.exceptions.BusinessException;
+import com.manager.freelancer_management_api.domain.global.exceptions.BusinessException;
 
 public class EmailAlreadyExistsException extends BusinessException {
     public EmailAlreadyExistsException() {

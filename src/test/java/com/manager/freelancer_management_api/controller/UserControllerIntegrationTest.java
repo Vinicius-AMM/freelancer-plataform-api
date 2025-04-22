@@ -2,9 +2,9 @@ package com.manager.freelancer_management_api.controller;
 
 import com.manager.freelancer_management_api.config.AbstractIntegrationTest;
 import com.jayway.jsonpath.JsonPath;
-import com.manager.freelancer_management_api.domain.repositories.UserRepository;
+import com.manager.freelancer_management_api.domain.user.repository.UserRepository;
 import com.manager.freelancer_management_api.domain.user.dto.request.*;
-import com.manager.freelancer_management_api.domain.user.entities.User;
+import com.manager.freelancer_management_api.domain.user.entity.User;
 import com.manager.freelancer_management_api.domain.user.enums.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
