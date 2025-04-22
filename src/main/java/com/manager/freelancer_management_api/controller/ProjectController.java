@@ -2,10 +2,10 @@ package com.manager.freelancer_management_api.controller;
 
 import com.manager.freelancer_management_api.domain.global.dto.ApiResponseDTO;
 import com.manager.freelancer_management_api.domain.global.dto.DTOValidationErrorResponse;
-import com.manager.freelancer_management_api.domain.global.entities.Deadline;
 import com.manager.freelancer_management_api.domain.project.dto.request.CreateProjectRequestDTO;
+import com.manager.freelancer_management_api.domain.project.dto.request.DeleteProjectRequestDTO;
+import com.manager.freelancer_management_api.domain.project.dto.request.UpdateProjectRequestDTO;
 import com.manager.freelancer_management_api.domain.project.dto.response.ProjectResponseDTO;
-import com.manager.freelancer_management_api.domain.project.enums.ProjectStatus;
 import com.manager.freelancer_management_api.domain.project.service.IProjectService;
 import com.manager.freelancer_management_api.infra.security.SecurityConfig;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,9 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-
-import java.math.BigDecimal;
 
 import static com.manager.freelancer_management_api.utils.handler.ApiResponseUtil.buildSuccessResponse;
 
@@ -107,44 +104,17 @@ public class ProjectController {
         return ResponseEntity.ok(project);
     }
 
-    @PatchMapping("/projects/{id}/updateTitle")
-    @Operation(summary = "Atualiza o título de um projeto")
-    public ResponseEntity<ApiResponseDTO> updateProjectTitle(@PathVariable Long id, @RequestBody String title) {
-        projectService.updateTitle(id, title);
-        return buildSuccessResponse(HttpStatus.OK, "Project title updated successfully");
-    }
-
-    @PatchMapping("/projects/{id}/updateDescription")
-    @Operation(summary = "Atualiza a descrição de um projeto")
-    public ResponseEntity<ApiResponseDTO> updateProjectDescription(@PathVariable Long id, @RequestBody String description) {
-        projectService.updateDescription(id, description);
-        return buildSuccessResponse(HttpStatus.OK, "Project description updated successfully");
-    }
-
-    @PatchMapping("/projects/{id}/updateDeadline")
-    @Operation(summary = "Atualiza a data de entrega de um projeto")
-    public ResponseEntity<ApiResponseDTO> updateProjectDeadline(@PathVariable Long id, @RequestBody Deadline deadline) {
-        projectService.updateDeadline(id, deadline);
-        return buildSuccessResponse(HttpStatus.OK, "Project deadline updated successfully");
-    }
-
-    @PatchMapping("/projects/{id}/updateEstimatedBudget")
-    @Operation(summary = "Atualiza o orcamento estimado de um projeto")
-    public ResponseEntity<ApiResponseDTO> updateProjectEstimatedBudget(@PathVariable Long id, @RequestBody BigDecimal estimatedBudget) {
-        projectService.updateEstimatedBudget(id, estimatedBudget);
-        return buildSuccessResponse(HttpStatus.OK, "Project estimated budget updated successfully");
-    }
-    @PatchMapping("/projects/{id}/updateStatus")
-    @Operation(summary = "Atualiza o status de um projeto")
-    public ResponseEntity<ApiResponseDTO> updateProjectStatus(@PathVariable Long id, @RequestBody ProjectStatus status) {
-        projectService.updateStatus(id, status);
-        return buildSuccessResponse(HttpStatus.OK, "Project status updated successfully");
+    @PutMapping("/projects/{id}")
+    @Operation(summary = "Atualiza um projeto")
+    public ResponseEntity<ApiResponseDTO> updateProject(@PathVariable Long id, @RequestBody @Valid UpdateProjectRequestDTO projectData) {
+        projectService.updateProject(id, projectData);
+        return buildSuccessResponse(HttpStatus.OK, "Project updated successfully");
     }
 
     @DeleteMapping("/projects/{id}")
     @Operation(summary = "Deleta um projeto")
-    public ResponseEntity<ApiResponseDTO> deleteProject(@PathVariable Long id, @RequestBody String rawPassword) {
-        projectService.deleteProject(id, rawPassword);
+    public ResponseEntity<ApiResponseDTO> deleteProject(@PathVariable Long id, @RequestBody @Valid DeleteProjectRequestDTO deleteRequest) {
+        projectService.deleteProject(id, deleteRequest.rawPassword());
         return buildSuccessResponse(HttpStatus.OK, "Project deleted successfully");
     }
 }
