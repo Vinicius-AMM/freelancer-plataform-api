@@ -1,11 +1,11 @@
 package com.manager.freelancer_management_api.controller;
 
-import com.manager.freelancer_management_api.domain.dto.ApiResponseDTO;
-import com.manager.freelancer_management_api.domain.dto.DTOValidationErrorResponse;
+import com.manager.freelancer_management_api.domain.global.dto.ApiResponseDTO;
+import com.manager.freelancer_management_api.domain.global.dto.DTOValidationErrorResponse;
 import com.manager.freelancer_management_api.domain.user.dto.request.LoginRequestDTO;
 import com.manager.freelancer_management_api.domain.user.dto.request.RegisterUserRequestDTO;
 import com.manager.freelancer_management_api.domain.user.dto.response.LoginResponseDTO;
-import com.manager.freelancer_management_api.services.IAuthenticationService;
+import com.manager.freelancer_management_api.domain.user.service.IAuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;

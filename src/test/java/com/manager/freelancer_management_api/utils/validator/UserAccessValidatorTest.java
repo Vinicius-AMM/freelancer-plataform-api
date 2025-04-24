@@ -1,6 +1,6 @@
 package com.manager.freelancer_management_api.utils.validator;
 
-import com.manager.freelancer_management_api.domain.exceptions.UnauthorizedAccessException;
+import com.manager.freelancer_management_api.domain.global.exceptions.UnauthorizedAccessException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

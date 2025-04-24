@@ -1,8 +1,8 @@
 package com.manager.freelancer_management_api.infra.handler;
 
-import com.manager.freelancer_management_api.domain.dto.ApiResponseDTO;
-import com.manager.freelancer_management_api.domain.dto.DTOValidationErrorResponse;
-import com.manager.freelancer_management_api.domain.exceptions.UnauthorizedAccessException;
+import com.manager.freelancer_management_api.domain.global.dto.ApiResponseDTO;
+import com.manager.freelancer_management_api.domain.global.dto.DTOValidationErrorResponse;
+import com.manager.freelancer_management_api.domain.global.exceptions.UnauthorizedAccessException;
 import com.manager.freelancer_management_api.domain.user.exceptions.*;
 import com.manager.freelancer_management_api.utils.handler.ApiResponseUtil;
 import org.springframework.context.annotation.Import;

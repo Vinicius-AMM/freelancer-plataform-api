@@ -1,6 +1,6 @@
 package com.manager.freelancer_management_api.utils.validator;
 
-import com.manager.freelancer_management_api.domain.exceptions.UnauthorizedAccessException;
+import com.manager.freelancer_management_api.domain.global.exceptions.UnauthorizedAccessException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -30,11 +30,9 @@ public class UserAccessValidator {
 
         if (principal instanceof Jwt jwt) {
             String userIdString = jwt.getSubject();
-
             if (userIdString == null || userIdString.isBlank()) {
                 throw new UnauthorizedAccessException("Token de autenticação inválido: Identificador de usuário ausente.");
             }
-
             try {
                 return UUID.fromString(userIdString);
             } catch (IllegalArgumentException e) {

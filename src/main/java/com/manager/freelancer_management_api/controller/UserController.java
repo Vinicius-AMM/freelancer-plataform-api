@@ -1,13 +1,13 @@
 package com.manager.freelancer_management_api.controller;
 
-import com.manager.freelancer_management_api.domain.dto.ApiResponseDTO;
-import com.manager.freelancer_management_api.domain.dto.DTOValidationErrorResponse;
+import com.manager.freelancer_management_api.domain.global.dto.ApiResponseDTO;
+import com.manager.freelancer_management_api.domain.global.dto.DTOValidationErrorResponse;
 import com.manager.freelancer_management_api.domain.user.dto.request.*;
 import com.manager.freelancer_management_api.domain.user.dto.response.OtherUserProfileDTO;
 import com.manager.freelancer_management_api.domain.user.dto.response.UserProfileDTO;
 import com.manager.freelancer_management_api.domain.user.dto.response.UserProfileResponseDTO;
 import com.manager.freelancer_management_api.infra.security.SecurityConfig;
-import com.manager.freelancer_management_api.services.IUserService;
+import com.manager.freelancer_management_api.domain.user.service.IUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -51,6 +51,16 @@ public class UserController {
                                             value = "{\"fullName\": \"Full Name\", \"mainUserRole\": \"FREELANCER\", \"currentUserRole\": \"CLIENT\"}"
                                     )}
                     )),
+            @ApiResponse(responseCode = "401", description = "Não autenticado",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 401, \"message\": \"Access denied.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+            @ApiResponse(responseCode = "403", description = "Token inválido internamente",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 403, \"message\": \"Access denied.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado",
                     content = @Content(
                             mediaType = "application/json",
@@ -114,7 +124,7 @@ public class UserController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = DTOValidationErrorResponse.class),
                             examples = @ExampleObject(value = "{\"statusCode\": 400, \"errors\": {\"email\": \"Invalid email format\", \"password\": \"Fill in this field\"}, \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
-            @ApiResponse(responseCode = "401", description = "Credenciais inválidas (senha incorretos)",
+            @ApiResponse(responseCode = "401", description = "Credenciais inválidas (senha incorreta)",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiResponseDTO.class),
@@ -166,7 +176,12 @@ public class UserController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiResponseDTO.class),
-                            examples = @ExampleObject(value = "{\"statusCode\": 404, \"message\": \"User not found\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}")))
+                            examples = @ExampleObject(value = "{\"statusCode\": 404, \"message\": \"User not found\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+            @ApiResponse(responseCode = "409", description = "Conflito - O novo documento já está em uso.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 409, \"message\": \"Invalid document.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}")))
     })
     public ResponseEntity<ApiResponseDTO> updateDocument(@PathVariable UUID id, @RequestBody @Valid DocumentUpdateRequestDTO request) {
         userService.updateDocument(id, request.password(), request.newDocument());
@@ -222,6 +237,11 @@ public class UserController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiResponse.class),
                             examples = @ExampleObject(value = "{\"statusCode\": 400, \"message\": \"Invalid role. Valid roles are CLIENT or FREELANCER.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+            @ApiResponse(responseCode = "401", description = "Não autenticado",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 401, \"message\": \"Access denied.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
             @ApiResponse(responseCode = "403", description = "Não autorizado (tentando atualizar dados de outro usuário)",
                     content = @Content(
                             mediaType = "application/json",
@@ -262,7 +282,8 @@ public class UserController {
                             schema = @Schema(implementation = ApiResponseDTO.class),
                             examples = @ExampleObject(value = "{\"statusCode\": 403, \"message\": \"Access denied.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDTO.class)))
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 404, \"message\": \"User not found\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}")))
     })
     public ResponseEntity<ApiResponseDTO> deleteUser(@PathVariable UUID id, @RequestBody @Valid DeleteUserRequestDTO request) {
         userService.deleteById(id, request.password());

@@ -1,7 +1,7 @@
 package com.manager.freelancer_management_api.infra.security;
 
-import com.manager.freelancer_management_api.domain.exceptions.PrivateKeyLoadException;
-import com.manager.freelancer_management_api.domain.exceptions.PublicKeyLoadException;
+import com.manager.freelancer_management_api.domain.global.exceptions.PrivateKeyLoadException;
+import com.manager.freelancer_management_api.domain.global.exceptions.PublicKeyLoadException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
