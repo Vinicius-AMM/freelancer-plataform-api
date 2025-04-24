@@ -12,18 +12,18 @@ import java.time.LocalDate;
 
 public record UpdateProjectRequestDTO(
         @Schema(description = "Novo título do projeto", example = "Refatoração da API", nullable = true)
-        @Size(max = 150, message = "O título não pode exceder 150 caracteres")
+        @Size(max = 150, message = "The title cannot exceed 150 characters.")
         String title,
         @Schema(description = "Nova descrição detalhada do projeto", example = "Atualizar a API para usar novas práticas.", nullable = true)
         String description,
         @Schema(description = "Nova data de início do projeto", example = "2025-06-01", nullable = true)
-        @FutureOrPresent(message = "A data de início deve ser no presente ou futuro")
+        @FutureOrPresent(message = "The start date must be in the present or future.")
         LocalDate startDate,
         @Schema(description = "Nova data de fim do projeto", example = "2025-07-01", nullable = true)
-        @Future(message = "A data final deve ser no futuro")
+        @Future(message = "The final date must be in the future.")
         LocalDate endDate,
         @Schema(description = "Novo orçamento estimado para o projeto", example = "3500.00", nullable = true)
-        @Positive(message = "O orçamento estimado deve ser maior que zero")
+        @Positive(message = "The estimated budget must be greater than zero.")
         BigDecimal estimatedBudget,
         @Schema(description = "Novo status do projeto (ex: OPEN, IN_PROGRESS)", example = "IN_PROGRESS", nullable = true)
         ProjectStatus projectStatus
