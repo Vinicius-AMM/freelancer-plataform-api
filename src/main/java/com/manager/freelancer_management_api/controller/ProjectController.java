@@ -114,7 +114,7 @@ public class ProjectController {
         return ResponseEntity.ok(project);
     }
 
-    @PutMapping("/projects/{id}")
+    @PutMapping("/update-project/{id}")
     @Operation(summary = "Atualiza um projeto")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Projeto atualizado com sucesso",
@@ -148,7 +148,7 @@ public class ProjectController {
         return buildSuccessResponse(HttpStatus.OK, "Project updated successfully");
     }
 
-    @DeleteMapping("/projects/{id}")
+    @DeleteMapping("/delete-project/{id}")
     @Operation(summary = "Deleta um projeto")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Projeto excluído com sucesso",
