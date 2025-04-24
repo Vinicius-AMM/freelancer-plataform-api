@@ -227,7 +227,7 @@ class ProjectControllerIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("PUT /projects/{id} - Should update project with success if user CLIENT is owner")
+    @DisplayName("PUT /update-project/{id} - Should update project with success if user CLIENT is owner")
     void updateProject_shouldUpdateSuccessfully_whenClientIsOwner() throws Exception {
         Project project = createProjectDirectly("Projeto Original", clientUser);
         UpdateProjectRequestDTO updateRequest = new UpdateProjectRequestDTO(
@@ -238,7 +238,7 @@ class ProjectControllerIntegrationTest extends AbstractIntegrationTest {
                 new BigDecimal("1500.50"),
                 ProjectStatus.IN_PROGRESS
         );
-        mockMvc.perform(put(BASE_URL + "/projects/{id}", project.getId())
+        mockMvc.perform(put(BASE_URL + "/update-project/{id}", project.getId())
                         .header("Authorization", "Bearer " + clientToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
@@ -256,20 +256,20 @@ class ProjectControllerIntegrationTest extends AbstractIntegrationTest {
         assertEquals(project.getDeadline().getEndDate().plusMonths(1), updatedProject.getDeadline().getEndDate());
     }
     @Test
-    @DisplayName("PUT /projects/{id} - Should return 403 Forbidden if user FREELANCER try to update")
+    @DisplayName("PUT /update-project/{id} - Should return 403 Forbidden if user FREELANCER try to update")
     void updateProject_shouldReturnForbidden_whenUserIsFreelancer() throws Exception {
         Project project = createProjectDirectly("Projeto do Cliente", clientUser);
         UpdateProjectRequestDTO updateRequest = new UpdateProjectRequestDTO(
                 "Tentativa Freelancer", null, null, null, null, null);
 
-        mockMvc.perform(put(BASE_URL + "/projects/{id}", project.getId())
+        mockMvc.perform(put(BASE_URL + "/update-project/{id}", project.getId())
                         .header("Authorization", "Bearer " + freelancerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isForbidden());
     }
     @Test
-    @DisplayName("PUT /projects/{id} - Should return 403 Forbidden if user CLIENT Try to update another CLIENT project")
+    @DisplayName("PUT /update-project/{id} - Should return 403 Forbidden if user CLIENT Try to update another CLIENT project")
     void updateProject_shouldReturnForbidden_whenClientUpdatesOthersProject() throws Exception {
         String otherClientToken = registerAndLogin("Other Client", "99988877766", "otherclient@test.com", "otherPass", UserRole.CLIENT, UserRole.CLIENT);
         User otherClientUser = getUserByEmail("otherclient@test.com");
@@ -278,7 +278,7 @@ class ProjectControllerIntegrationTest extends AbstractIntegrationTest {
         UpdateProjectRequestDTO updateRequest = new UpdateProjectRequestDTO(
                 "Tentativa de Atualização Indevida", null, null, null, null, null);
 
-        mockMvc.perform(put(BASE_URL + "/projects/{id}", otherProject.getId())
+        mockMvc.perform(put(BASE_URL + "/update-project/{id}", otherProject.getId())
                         .header("Authorization", "Bearer " + clientToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
@@ -287,12 +287,12 @@ class ProjectControllerIntegrationTest extends AbstractIntegrationTest {
                 .andExpect(jsonPath("$.message", is("Access denied.")));
     }
     @Test
-    @DisplayName("PUT /projects/{id} - Should return 404 Not Found for nonexistent id")
+    @DisplayName("PUT /update-project/{id} - Should return 404 Not Found for nonexistent id")
     void updateProject_shouldReturnNotFound_whenIdDoesNotExist() throws Exception {
         long nonExistentId = 9999L;
         UpdateProjectRequestDTO updateRequest = new UpdateProjectRequestDTO("Update Non Existent", null, null, null, null, null);
 
-        mockMvc.perform(put(BASE_URL + "/projects/{id}", nonExistentId)
+        mockMvc.perform(put(BASE_URL + "/update-project/{id}", nonExistentId)
                         .header("Authorization", "Bearer " + clientToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
@@ -302,13 +302,13 @@ class ProjectControllerIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @DisplayName("DELETE /projects/{id} - Should delete project with success if CLIENT is owner and password is correct")
+    @DisplayName("DELETE /delete-project/{id} - Should delete project with success if CLIENT is owner and password is correct")
     void deleteProject_shouldDeleteSuccessfully_whenClientIsOwnerAndPasswordCorrect() throws Exception {
         Project project = createProjectDirectly("Projeto para Deletar", clientUser);
         long projectIdToDelete = project.getId();
         DeleteProjectRequestDTO deleteRequest = new DeleteProjectRequestDTO(clientPassword);
 
-        mockMvc.perform(delete(BASE_URL + "/projects/{id}", projectIdToDelete)
+        mockMvc.perform(delete(BASE_URL + "/delete-project/{id}", projectIdToDelete)
                         .header("Authorization", "Bearer " + clientToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(deleteRequest)))
@@ -319,13 +319,13 @@ class ProjectControllerIntegrationTest extends AbstractIntegrationTest {
         assertFalse(projectRepository.findById(projectIdToDelete).isPresent());
     }
     @Test
-    @DisplayName("DELETE /projects/{id} - Should return 401 Unauthorized if the password is invalid")
+    @DisplayName("DELETE /delete-project/{id} - Should return 401 Unauthorized if the password is invalid")
     void deleteProject_shouldReturnUnauthorized_whenPasswordIsIncorrect() throws Exception {
         Project project = createProjectDirectly("Projeto Senha Errada", clientUser);
         long projectIdToDelete = project.getId();
         DeleteProjectRequestDTO deleteRequest = new DeleteProjectRequestDTO("wrongPassword");
 
-        mockMvc.perform(delete(BASE_URL + "/projects/{id}", projectIdToDelete)
+        mockMvc.perform(delete(BASE_URL + "/delete-project/{id}", projectIdToDelete)
                         .header("Authorization", "Bearer " + clientToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(deleteRequest)))
@@ -336,13 +336,13 @@ class ProjectControllerIntegrationTest extends AbstractIntegrationTest {
         assertTrue(projectRepository.findById(projectIdToDelete).isPresent());
     }
     @Test
-    @DisplayName("DELETE /projects/{id} - Should return 400 Bad Request if password field is blank")
+    @DisplayName("DELETE /delete-project/{id} - Should return 400 Bad Request if password field is blank")
     void deleteProject_shouldReturnBadRequest_whenPasswordInDtoIsMissing() throws Exception {
         Project project = createProjectDirectly("Projeto Senha Faltando", clientUser);
         long projectIdToDelete = project.getId();
         DeleteProjectRequestDTO deleteRequest = new DeleteProjectRequestDTO(null);
 
-        mockMvc.perform(delete(BASE_URL + "/projects/{id}", projectIdToDelete)
+        mockMvc.perform(delete(BASE_URL + "/delete-project/{id}", projectIdToDelete)
                         .header("Authorization", "Bearer " + clientToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(deleteRequest)))
@@ -352,27 +352,27 @@ class ProjectControllerIntegrationTest extends AbstractIntegrationTest {
         assertTrue(projectRepository.findById(projectIdToDelete).isPresent());
     }
     @Test
-    @DisplayName("DELETE /projects/{id} - Should return 403 Forbidden if FREELANCER try to delete a project")
+    @DisplayName("DELETE /delete-project/{id} - Should return 403 Forbidden if FREELANCER try to delete a project")
     void deleteProject_shouldReturnForbidden_whenUserIsFreelancer() throws Exception {
         Project project = createProjectDirectly("Projeto Protegido", clientUser);
         long projectIdToDelete = project.getId();
         DeleteProjectRequestDTO deleteRequest = new DeleteProjectRequestDTO(clientPassword);
 
-        mockMvc.perform(delete(BASE_URL + "/projects/{id}", projectIdToDelete)
+        mockMvc.perform(delete(BASE_URL + "/delete-project/{id}", projectIdToDelete)
                         .header("Authorization", "Bearer " + freelancerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(deleteRequest)))
                 .andExpect(status().isForbidden());
     }
     @Test
-    @DisplayName("DELETE /projects/{id} - Should return 403 Forbidden if CLIENT try to delete another user project")
+    @DisplayName("DELETE /delete-project/{id} - Should return 403 Forbidden if CLIENT try to delete another user project")
     void deleteProject_shouldReturnForbidden_whenClientDeletesOthersProject() throws Exception {
         String otherClientToken = registerAndLogin("Other Client Del", "77766655544", "otherclientdel@test.com", "otherPassDel", UserRole.CLIENT, UserRole.CLIENT);
         User otherClientUser = getUserByEmail("otherclientdel@test.com");
         Project otherProject = createProjectDirectly("Projeto do Outro Cliente Del", otherClientUser);
         DeleteProjectRequestDTO deleteRequest = new DeleteProjectRequestDTO(clientPassword);
 
-        mockMvc.perform(delete(BASE_URL + "/projects/{id}", otherProject.getId())
+        mockMvc.perform(delete(BASE_URL + "/delete-project/{id}", otherProject.getId())
                         .header("Authorization", "Bearer " + clientToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(deleteRequest)))
@@ -383,12 +383,12 @@ class ProjectControllerIntegrationTest extends AbstractIntegrationTest {
         assertTrue(projectRepository.findById(otherProject.getId()).isPresent());
     }
     @Test
-    @DisplayName("DELETE /projects/{id} - Should return 404 Not Found for nonexistent id")
+    @DisplayName("DELETE /delete-project/{id} - Should return 404 Not Found for nonexistent id")
     void deleteProject_shouldReturnNotFound_whenIdDoesNotExist() throws Exception {
         long nonExistentId = 9999L;
         DeleteProjectRequestDTO deleteRequest = new DeleteProjectRequestDTO(clientPassword);
 
-        mockMvc.perform(delete(BASE_URL + "/projects/{id}", nonExistentId)
+        mockMvc.perform(delete(BASE_URL + "/delete-project/{id}", nonExistentId)
                         .header("Authorization", "Bearer " + clientToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(deleteRequest)))
