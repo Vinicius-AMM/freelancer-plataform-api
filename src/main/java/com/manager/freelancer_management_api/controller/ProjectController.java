@@ -52,6 +52,16 @@ public class ProjectController {
                             schema = @Schema(implementation = DTOValidationErrorResponse.class),
                             examples = @ExampleObject(value = "{\"statusCode\": 400, \"errors\": { \"title\": \"Title cannot exceed 150 characters.\", \"description\": \"Description cannot be blank.\", \"startDate\": \"Start date cannot be null.\", \"endDate\": \"End date cannot be null.\", \"estimatedBudget\": \"Estimated Budget must be greater than zero.\"}, \"timestamp\": \"2025-04-02T02:28:59.409Z\"}")
                     )),
+            @ApiResponse(responseCode = "401", description = "Não autenticado / Token inválido",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 401, \"message\": \"Access denied.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+            @ApiResponse(responseCode = "403", description = "Acesso negado (usuário não é CLIENT)",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 403, \"message\": \"Access denied.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado",
                     content = @Content(
                             mediaType = "application/json",
@@ -64,7 +74,7 @@ public class ProjectController {
     }
 
     @GetMapping("/projects")
-    @Operation(summary = "Retorna os projetos com limite de 10 por página")
+    @Operation(summary = "Retorna os projetos utilizando paginação")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Projetos exibidos com sucesso",
                     content = @Content(mediaType = "application/json",
@@ -106,6 +116,33 @@ public class ProjectController {
 
     @PutMapping("/projects/{id}")
     @Operation(summary = "Atualiza um projeto")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Projeto atualizado com sucesso",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 200, \"message\": \"Project updated successfully\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+            @ApiResponse(responseCode = "400", description = "Requisição inválida (falha na validação do DTO)",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = DTOValidationErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 400, \"errors\": {\"title\": \"O título não pode exceder 150 caracteres\", \"endDate\": \"A data final deve ser no futuro\"}, \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+            @ApiResponse(responseCode = "401", description = "Não autenticado",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 401, \"message\": \"Access denied.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+            @ApiResponse(responseCode = "403", description = "Acesso negado (não é CLIENT ou não é dono do projeto)",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 403, \"message\": \"Access denied.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+            @ApiResponse(responseCode = "404", description = "Projeto nao encontrado",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 404, \"message\": \"Project not found.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}")))
+    })
     public ResponseEntity<ApiResponseDTO> updateProject(@PathVariable Long id, @RequestBody @Valid UpdateProjectRequestDTO projectData) {
         projectService.updateProject(id, projectData);
         return buildSuccessResponse(HttpStatus.OK, "Project updated successfully");
@@ -113,6 +150,23 @@ public class ProjectController {
 
     @DeleteMapping("/projects/{id}")
     @Operation(summary = "Deleta um projeto")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Projeto excluído com sucesso",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 200, \"message\": \"Project deleted successfully\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+            @ApiResponse(responseCode = "400", description = "Requisição inválida (senha em branco)",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = DTOValidationErrorResponse.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 400, \"errors\": {\"rawPassword\": \"Password must not be empty.\"}, \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+            @ApiResponse(responseCode = "401", description = "Não autenticado ou Senha incorreta para exclusão",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 401, \"message\": \"Senha incorreta. Não foi possível excluir o projeto.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+            @ApiResponse(responseCode = "403", description = "Acesso negado (não é CLIENT ou não é dono do projeto)",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 403, \"message\": \"Access denied.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}"))),
+            @ApiResponse(responseCode = "404", description = "Projeto nao encontrado",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 404, \"message\": \"Project not found.\", \"timestamp\": \"2025-04-02T02:28:59.409Z\"}")))
+    })
     public ResponseEntity<ApiResponseDTO> deleteProject(@PathVariable Long id, @RequestBody @Valid DeleteProjectRequestDTO deleteRequest) {
         projectService.deleteProject(id, deleteRequest.rawPassword());
         return buildSuccessResponse(HttpStatus.OK, "Project deleted successfully");
