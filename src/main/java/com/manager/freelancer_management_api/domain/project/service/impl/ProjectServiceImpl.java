@@ -104,7 +104,7 @@ public class ProjectServiceImpl implements IProjectService {
 
         passwordValidator.validate(rawPassword,
                 owner.getPassword(),
-                "Senha incorreta. Não foi possível excluir o projeto."
+                "Invalid password. It was not possible to delete the project."
         );
         projectRepository.delete(project);
     }
