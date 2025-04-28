@@ -4,6 +4,7 @@ import com.manager.freelancer_management_api.domain.project.dto.request.CreatePr
 import com.manager.freelancer_management_api.domain.project.dto.request.UpdateProjectRequestDTO;
 import com.manager.freelancer_management_api.domain.project.dto.response.ProjectResponseDTO;
 import com.manager.freelancer_management_api.domain.project.entity.Project;
+import com.manager.freelancer_management_api.domain.project.enums.ProjectStatus;
 import com.manager.freelancer_management_api.domain.project.repositories.ProjectRepository;
 import com.manager.freelancer_management_api.domain.project.service.IProjectService;
 import com.manager.freelancer_management_api.domain.project.utils.ProjectAccessHelper;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -62,7 +64,9 @@ public class ProjectServiceImpl implements IProjectService {
 
         Pageable effectivePageable = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
 
-        Page<Project> projects = projectRepository.findAll(effectivePageable);
+        List<ProjectStatus> statuses = Arrays.asList(ProjectStatus.OPEN, ProjectStatus.IN_PROGRESS);
+
+        Page<Project> projects = projectRepository.findByStatusIn(statuses, effectivePageable);
 
         List<ProjectResponseDTO> projectsList = projects.getContent().stream()
                 .map(project -> getProjectById(project.getId()))
