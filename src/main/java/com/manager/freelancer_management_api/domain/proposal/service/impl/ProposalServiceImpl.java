@@ -51,6 +51,7 @@ public class ProposalServiceImpl implements IProposalService {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("hasRole('FREELANCER')")
     public void createProposal(Long projectId, CreateProposalRequestDTO proposalData) {
         Project project = projectAccessHelper.findProjectById(projectId);
@@ -65,6 +66,7 @@ public class ProposalServiceImpl implements IProposalService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     @PreAuthorize("hasRole('CLIENT')")
     public Page<ProposalResponseDTO> getAllProposalsByProjectId(Long projectId, Pageable pageable) {
         Project project = projectAccessHelper.findProjectById(projectId);
@@ -85,6 +87,7 @@ public class ProposalServiceImpl implements IProposalService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     @PreAuthorize("hasRole('FREELANCER')")
     public Page<ProposalResponseDTO> getAllProposalsByFreelancerId(UUID freelancerId, Pageable pageable) {
         userAccessValidator.validateAccess(freelancerId);
@@ -104,6 +107,7 @@ public class ProposalServiceImpl implements IProposalService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     @PreAuthorize("isAuthenticated()")
     public ProposalResponseDTO getProposalById(Long proposalId) {
         Proposal proposal = proposalAccessHelper.findProposalById(proposalId);
@@ -111,6 +115,7 @@ public class ProposalServiceImpl implements IProposalService {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("hasRole('FREELANCER')")
     public void updateProposal(Long proposalId, String password, UpdateProposalRequestDTO proposalData) {
         Proposal proposal = proposalAccessHelper.findProposalAndValidateOwnership(proposalId);
@@ -124,6 +129,7 @@ public class ProposalServiceImpl implements IProposalService {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("hasRole('FREELANCER')")
     public void deleteProposal(Long proposalId, String rawPassword) {
         Proposal proposal = proposalAccessHelper.findProposalAndValidateOwnership(proposalId);
@@ -136,6 +142,7 @@ public class ProposalServiceImpl implements IProposalService {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("hasRole('CLIENT')")
     public void processProposalDecision(Long proposalId, ProcessProposalDecisionRequestDTO decisionRequest) {
         Proposal proposal = proposalAccessHelper.findProposalAndValidateOwnership(proposalId);
