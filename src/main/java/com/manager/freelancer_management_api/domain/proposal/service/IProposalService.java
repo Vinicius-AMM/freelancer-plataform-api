@@ -14,7 +14,7 @@ public interface IProposalService {
     Page<ProposalResponseDTO> getAllProposalsByProjectId(Long projectId, Pageable pageable);
     Page<ProposalResponseDTO> getAllProposalsByFreelancerId(UUID freelancerId, Pageable pageable);
     ProposalResponseDTO getProposalById(Long proposalId);
-    void updateProposal(Long proposalId, String password, UpdateProposalRequestDTO proposalData);
+    void updateProposal(Long proposalId, UpdateProposalRequestDTO proposalData);
     void deleteProposal(Long proposalId, String password);
     void processProposalDecision(Long proposalId, ProcessProposalDecisionRequestDTO decisionRequest);
 }
