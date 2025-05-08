@@ -13,6 +13,7 @@ import com.manager.freelancer_management_api.domain.proposal.exception.InvalidPr
 import com.manager.freelancer_management_api.domain.proposal.exception.ProjectNotAvailableException;
 import com.manager.freelancer_management_api.domain.proposal.repository.ProposalRepository;
 import com.manager.freelancer_management_api.domain.proposal.service.IProposalService;
+import com.manager.freelancer_management_api.domain.proposal.util.GetAllProposalsHelper;
 import com.manager.freelancer_management_api.domain.proposal.util.ProposalAccessHelper;
 import com.manager.freelancer_management_api.domain.proposal.util.ProposalUpdateHelper;
 import com.manager.freelancer_management_api.domain.user.entity.User;
@@ -39,8 +40,9 @@ public class ProposalServiceImpl implements IProposalService {
     private final IUserService userService;
     private final ProjectAccessHelper projectAccessHelper;
     private final ProposalUpdateHelper proposalUpdateHelper;
+    private final GetAllProposalsHelper getAllProposalsHelper;
 
-    public ProposalServiceImpl(ProposalRepository proposalRepository, ProposalAccessHelper proposalAccessHelper, PasswordValidator passwordValidator, UserAccessValidator userAccessValidator, IUserService userService, ProjectAccessHelper projectAccessHelper, ProposalUpdateHelper proposalUpdateHelper) {
+    public ProposalServiceImpl(ProposalRepository proposalRepository, ProposalAccessHelper proposalAccessHelper, PasswordValidator passwordValidator, UserAccessValidator userAccessValidator, IUserService userService, ProjectAccessHelper projectAccessHelper, ProposalUpdateHelper proposalUpdateHelper, GetAllProposalsHelper getAllProposalsHelper) {
         this.proposalRepository = proposalRepository;
         this.proposalAccessHelper = proposalAccessHelper;
         this.passwordValidator = passwordValidator;
@@ -48,6 +50,7 @@ public class ProposalServiceImpl implements IProposalService {
         this.userService = userService;
         this.projectAccessHelper = projectAccessHelper;
         this.proposalUpdateHelper = proposalUpdateHelper;
+        this.getAllProposalsHelper = getAllProposalsHelper;
     }
 
     @Override
@@ -72,18 +75,10 @@ public class ProposalServiceImpl implements IProposalService {
         Project project = projectAccessHelper.findProjectById(projectId);
         userAccessValidator.validateAccess(project.getUser().getId());
 
-        int pageSize = pageable.getPageSize() > 0 ? pageable.getPageSize() : DEFAULT_PAGE_SIZE;
-        Sort sort = pageable.getSort().isSorted() ? pageable.getSort() : Sort.by(Sort.Direction.DESC, "createdAt");
+        Function<Pageable, Page<Proposal>> fetcher = effectivePageable ->
+                proposalRepository.findAllByProjectId(projectId, effectivePageable);
 
-        Pageable effectivePageable = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
-
-        Page<Proposal> proposalsPage = proposalRepository.findAllByProjectId(projectId, effectivePageable);
-
-        List<ProposalResponseDTO> proposalsList = proposalsPage.getContent().stream().map(
-                proposal -> getProposalById(proposal.getId()))
-                .collect(Collectors.toList());
-
-        return new PageImpl<>(proposalsList, proposalsPage.getPageable(), proposalsPage.getTotalElements());
+        return getAllProposalsHelper.getAllProposals(pageable, fetcher);
     }
 
     @Override
@@ -92,18 +87,10 @@ public class ProposalServiceImpl implements IProposalService {
     public Page<ProposalResponseDTO> getAllProposalsByFreelancerId(UUID freelancerId, Pageable pageable) {
         userAccessValidator.validateAccess(freelancerId);
 
-        int pageSize = pageable.getPageSize() > 0 ? pageable.getPageSize() : DEFAULT_PAGE_SIZE;
-        Sort sort = pageable.getSort().isSorted() ? pageable.getSort() : Sort.by(Sort.Direction.DESC, "createdAt");
+        Function<Pageable, Page<Proposal>> fetcher = effectivePageable ->
+                proposalRepository.findAllByFreelancerId(freelancerId, effectivePageable);
 
-        Pageable effectivePageable = PageRequest.of(pageable.getPageNumber(), pageSize, sort);
-
-        Page<Proposal> proposalsPage = proposalRepository.findAllByFreelancerId(freelancerId, effectivePageable);
-
-        List<ProposalResponseDTO> proposalsList = proposalsPage.getContent().stream().map(
-                        proposal -> getProposalById(proposal.getId()))
-                .collect(Collectors.toList());
-
-        return new PageImpl<>(proposalsList, proposalsPage.getPageable(), proposalsPage.getTotalElements());
+        return getAllProposalsHelper.getAllProposals(pageable, fetcher);
     }
 
     @Override
