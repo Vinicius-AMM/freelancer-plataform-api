@@ -57,6 +57,7 @@ public class ProjectServiceImpl implements IProjectService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     @PreAuthorize("isAuthenticated()")
     public Page<ProjectResponseDTO> getAllProjects(Pageable pageable) {
         int pageSize = pageable.getPageSize() > 0 ? pageable.getPageSize() : DEFAULT_PAGE_SIZE;
@@ -76,6 +77,7 @@ public class ProjectServiceImpl implements IProjectService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     @PreAuthorize("isAuthenticated()")
     @Cacheable(value = "getProjectCache", key = "#projectId")
     public ProjectResponseDTO getProjectById(Long projectId) {
