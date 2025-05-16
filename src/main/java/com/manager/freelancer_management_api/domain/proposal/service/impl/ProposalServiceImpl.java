@@ -9,7 +9,6 @@ import com.manager.freelancer_management_api.domain.proposal.dto.request.UpdateP
 import com.manager.freelancer_management_api.domain.proposal.dto.response.ProposalResponseDTO;
 import com.manager.freelancer_management_api.domain.proposal.entity.Proposal;
 import com.manager.freelancer_management_api.domain.proposal.enums.ProposalDecisionAction;
-import com.manager.freelancer_management_api.domain.proposal.exception.InvalidProposalDecisionException;
 import com.manager.freelancer_management_api.domain.proposal.exception.ProjectNotAvailableException;
 import com.manager.freelancer_management_api.domain.proposal.repository.ProposalRepository;
 import com.manager.freelancer_management_api.domain.proposal.service.IProposalService;
@@ -61,10 +60,16 @@ public class ProposalServiceImpl implements IProposalService {
 
         UUID authenticatedFreelancerId = userAccessValidator.getAuthenticatedUserId();
         User freelancer = userService.getUser(authenticatedFreelancerId);
-        project.setStatus(ProjectStatus.NEGOTIATING);
+        if(freelancer.getCurrentUserRole() != UserRole.FREELANCER){
+            throw new InvalidUserRoleException("Only freelancers can create proposals.");
+        }
+        if(project.getStatus() != ProjectStatus.OPEN && project.getStatus() != ProjectStatus.NEGOTIATING){
+            throw new ProjectNotAvailableException("Proposals can only be created for projects that are OPEN or NEGOTIATING. Current status: " + project.getStatus());
+        }
 
         Proposal proposal = proposalData.toEntity(proposalData, project, freelancer);
 
+        project.setStatus(ProjectStatus.NEGOTIATING);
         proposalRepository.save(proposal);
     }
 
