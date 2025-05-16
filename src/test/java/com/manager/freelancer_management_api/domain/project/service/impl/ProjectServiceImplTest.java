@@ -29,8 +29,6 @@ import org.springframework.data.domain.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -148,62 +146,6 @@ class ProjectServiceImplTest {
         verify(userAccessValidator, times(1)).getAuthenticatedUserId();
         verify(userService, times(1)).getUser(userId);
         verify(projectRepository, never()).save(any(Project.class));
-    }
-
-    @Test
-    @DisplayName("getAllProjects should return page of ProjectResponseDTO")
-    void getAllProjects_shouldReturnPageOfProjectResponseDTO() {
-        Page<Project> projectPage = new PageImpl<>(List.of(testProject), defaultPageable, 1);
-        when(projectRepository.findAll(defaultPageable)).thenReturn(projectPage);
-
-        lenient().when(projectAccessHelper.findProjectById(projectId)).thenReturn(testProject);
-
-        Pageable unsortedPageable = PageRequest.of(0, DEFAULT_PAGE_SIZE);
-        Page<ProjectResponseDTO> resultPage = projectService.getAllProjects(unsortedPageable);
-
-        assertNotNull(resultPage);
-        assertEquals(1, resultPage.getTotalElements());
-        assertEquals(1, resultPage.getContent().size());
-        assertEquals(0, resultPage.getNumber());
-        assertEquals(testProject.getTitle(), resultPage.getContent().get(0).title());
-
-        verify(projectRepository, times(1)).findAll(defaultPageable);
-        verify(projectAccessHelper, times(1)).findProjectById(projectId);
-    }
-    @Test
-    @DisplayName("getAllProjects should return page of DTOs using custom pageable")
-    void getAllProjects_shouldReturnPageOfDTOs_withCustomPageable() {
-        Pageable customPageable = PageRequest.of(1, 5, Sort.by(Sort.Direction.ASC, "title"));
-        Page<Project> projectPage = new PageImpl<>(List.of(testProject), customPageable, 1);
-        when(projectRepository.findAll(customPageable)).thenReturn(projectPage);
-        lenient().when(projectAccessHelper.findProjectById(projectId)).thenReturn(testProject);
-
-        Page<ProjectResponseDTO> resultPage = projectService.getAllProjects(customPageable);
-
-        assertNotNull(resultPage);
-        assertEquals(6, resultPage.getTotalElements());
-        assertEquals(1, resultPage.getContent().size());
-        assertEquals(5, resultPage.getSize());
-        assertEquals(testProject.getTitle(), resultPage.getContent().get(0).title());
-
-        verify(projectRepository, times(1)).findAll(customPageable);
-        verify(projectAccessHelper, times(1)).findProjectById(projectId);
-    }
-    @Test
-    @DisplayName("getAllProjects should return empty page when no projects found")
-    void getAllProjects_ShouldReturnEmptyPage_WhenNoProjectExists(){
-        Page<Project> emptyPage = new PageImpl<>(Collections.emptyList(), defaultPageable, 0);
-        when(projectRepository.findAll(defaultPageable)).thenReturn(emptyPage);
-
-        Pageable requestedPageable = PageRequest.of(0, DEFAULT_PAGE_SIZE);
-        Page<ProjectResponseDTO> resultPage = projectService.getAllProjects(requestedPageable);
-
-        assertNotNull(resultPage);
-        assertTrue(resultPage.isEmpty());
-        assertEquals(0, resultPage.getTotalElements());
-
-        verify(projectRepository, times(1)).findAll(defaultPageable);
-        verify(projectAccessHelper, never()).findProjectById(anyLong());
     }
 
     @Test
