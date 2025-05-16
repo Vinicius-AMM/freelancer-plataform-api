@@ -28,10 +28,10 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.function.Function;
 
 @Service
 public class ProposalServiceImpl implements IProposalService {
@@ -127,7 +127,7 @@ public class ProposalServiceImpl implements IProposalService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('FREELANCER')")
-    public void updateProposal(Long proposalId, String password, UpdateProposalRequestDTO proposalData) {
+    public void updateProposal(Long proposalId, UpdateProposalRequestDTO proposalData) {
         Proposal proposal = proposalAccessHelper.findProposalAndValidateOwnership(proposalId);
 
         boolean updated = proposalUpdateHelper.updateOfferedValue(proposal, proposalData);
