@@ -16,11 +16,11 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 @Service
-@EnableCaching
 public class UserServiceImpl implements IUserService {
     public static final String INVALID_PASSWORD_MESSAGE = "Invalid password.";
 
@@ -37,6 +37,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     @PreAuthorize("isAuthenticated()")
     public User getUser(UUID id) {
         return userRepository.findById(id).orElseThrow(UserNotFoundException::new);
@@ -44,6 +45,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
     @Cacheable(value = "userProfileCache", key = "#id")
     public UserProfileResponseDTO getUserProfile(UUID id) {
         UUID authenticatedUserId = userAccessValidator.getAuthenticatedUserId();
@@ -64,6 +66,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     @CacheEvict(value = "userProfileCache", key = "#id")
     public void updateFullName(UUID id, String newFullName) {
         userAccessValidator.validateAccess(id);
@@ -74,6 +77,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     @CacheEvict(value = "userProfileCache", key = "#id")
     public void updateEmail(UUID id, String password, String newEmail) {
         userAccessValidator.validateAccess(id);
@@ -88,6 +92,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     @CacheEvict(value = "userProfileCache", key = "#id")
     public void updateDocument(UUID id, String password, String newDocument) {
         userAccessValidator.validateAccess(id);
@@ -102,6 +107,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     public void updatePassword(UUID id, String oldPassword, String newPassword) {
         userAccessValidator.validateAccess(id);
 
@@ -115,6 +121,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     @CacheEvict(value = "userProfileCache", key = "#id")
     public void changeUserRole(UUID id, String newUserRole) {
         userAccessValidator.validateAccess(id);
@@ -130,6 +137,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    @Transactional
     @CacheEvict(value = "userProfileCache", key = "#id")
     public void deleteById(UUID id, String userPassword) {
         userAccessValidator.validateAccess(id);
