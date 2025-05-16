@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Schema(description = "DTO para criação do projeto.")
 public record CreateProposalRequestDTO(@Schema(description = "Data de inicio", example = "2028-06-25")
@@ -23,6 +24,7 @@ public record CreateProposalRequestDTO(@Schema(description = "Data de inicio", e
                 .offeredValue(dto.offeredValue())
                 .project(project)
                 .freelancer(userFreelancer)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 }
