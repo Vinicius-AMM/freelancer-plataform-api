@@ -1,15 +1,14 @@
 package com.manager.freelancer_management_api.domain.project.utils;
 
-import com.manager.freelancer_management_api.domain.global.entities.Deadline;
 import com.manager.freelancer_management_api.domain.project.dto.request.UpdateProjectRequestDTO;
 import com.manager.freelancer_management_api.domain.project.entity.Project;
-import com.manager.freelancer_management_api.domain.project.exceptions.InvalidDateException;
+import com.manager.freelancer_management_api.utils.common.DeadlineUpdateUtil;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
 
 @Component
 public class ProjectUpdateHelper {
+
+    public ProjectUpdateHelper(){}
 
     public boolean updateSimpleFields(Project project, UpdateProjectRequestDTO updateData) {
         boolean updated = false;
@@ -34,26 +33,15 @@ public class ProjectUpdateHelper {
     }
 
     public boolean updateDeadlineIfNecessary(Project project, UpdateProjectRequestDTO updateData) {
-        LocalDate newStartDate = updateData.startDate();
-        LocalDate newEndDate = updateData.endDate();
-
-        if (newStartDate == null && newEndDate == null) return false;
-
-        LocalDate currentStartDate = project.getDeadline() != null ? project.getDeadline().getStartDate() : null;
-        LocalDate currentEndDate = project.getDeadline() != null ? project.getDeadline().getEndDate() : null;
-
-        LocalDate effectiveStartDate = newStartDate != null ? newStartDate : currentStartDate;
-        LocalDate effectiveEndDate = newEndDate != null ? newEndDate : currentEndDate;
-
-        if (effectiveStartDate == null || effectiveEndDate == null) {
-            throw new InvalidDateException("Ambas as datas (início e fim) são necessárias para atualizar o prazo.");
+        if(updateData.startDate() == null && updateData.endDate() == null) {
+            return false;
         }
-        if (!effectiveEndDate.isAfter(effectiveStartDate)) {
-            throw new InvalidDateException("A data final deve ser posterior à data de início.");
-        }
-
-        project.setDeadline(new Deadline(effectiveStartDate, effectiveEndDate));
+        DeadlineUpdateUtil.applyDeadlineUpdateLogic(
+                project::getDeadline,
+                project::setDeadline,
+                updateData.startDate(),
+                updateData.endDate()
+        );
         return true;
-
     }
 }

@@ -1,6 +1,6 @@
 package com.manager.freelancer_management_api.domain.global.entities;
 
-import com.manager.freelancer_management_api.domain.project.exceptions.InvalidDateException;
+import com.manager.freelancer_management_api.domain.global.exceptions.InvalidDateException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
