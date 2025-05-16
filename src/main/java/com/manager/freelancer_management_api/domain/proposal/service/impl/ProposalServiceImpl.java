@@ -16,9 +16,13 @@ import com.manager.freelancer_management_api.domain.proposal.util.GetAllProposal
 import com.manager.freelancer_management_api.domain.proposal.util.ProposalAccessHelper;
 import com.manager.freelancer_management_api.domain.proposal.util.ProposalUpdateHelper;
 import com.manager.freelancer_management_api.domain.user.entity.User;
+import com.manager.freelancer_management_api.domain.user.enums.UserRole;
+import com.manager.freelancer_management_api.domain.user.exceptions.InvalidUserRoleException;
 import com.manager.freelancer_management_api.domain.user.service.IUserService;
 import com.manager.freelancer_management_api.utils.validator.PasswordValidator;
 import com.manager.freelancer_management_api.utils.validator.UserAccessValidator;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -30,8 +34,6 @@ import java.util.stream.Collectors;
 @Service
 public class ProposalServiceImpl implements IProposalService {
 
-    private static final int DEFAULT_PAGE_SIZE = 10;
-
     private final ProposalRepository proposalRepository;
     private final ProposalAccessHelper proposalAccessHelper;
     private final PasswordValidator passwordValidator;
@@ -40,8 +42,10 @@ public class ProposalServiceImpl implements IProposalService {
     private final ProjectAccessHelper projectAccessHelper;
     private final ProposalUpdateHelper proposalUpdateHelper;
     private final GetAllProposalsHelper getAllProposalsHelper;
+    private final CacheManager cacheManager;
+    private final ProjectRepository projectRepository;
 
-    public ProposalServiceImpl(ProposalRepository proposalRepository, ProposalAccessHelper proposalAccessHelper, PasswordValidator passwordValidator, UserAccessValidator userAccessValidator, IUserService userService, ProjectAccessHelper projectAccessHelper, ProposalUpdateHelper proposalUpdateHelper, GetAllProposalsHelper getAllProposalsHelper) {
+    public ProposalServiceImpl(ProposalRepository proposalRepository, ProposalAccessHelper proposalAccessHelper, PasswordValidator passwordValidator, UserAccessValidator userAccessValidator, IUserService userService, ProjectAccessHelper projectAccessHelper, ProposalUpdateHelper proposalUpdateHelper, GetAllProposalsHelper getAllProposalsHelper, CacheManager cacheManager, ProjectRepository projectRepository) {
         this.proposalRepository = proposalRepository;
         this.proposalAccessHelper = proposalAccessHelper;
         this.passwordValidator = passwordValidator;
@@ -50,11 +54,14 @@ public class ProposalServiceImpl implements IProposalService {
         this.projectAccessHelper = projectAccessHelper;
         this.proposalUpdateHelper = proposalUpdateHelper;
         this.getAllProposalsHelper = getAllProposalsHelper;
+        this.cacheManager = cacheManager;
+        this.projectRepository = projectRepository;
     }
 
     @Override
     @Transactional
     @PreAuthorize("hasRole('FREELANCER')")
+    @CacheEvict(value = "getProjectCache", key = "#projectId")
     public void createProposal(Long projectId, CreateProposalRequestDTO proposalData) {
         Project project = projectAccessHelper.findProjectById(projectId);
 
