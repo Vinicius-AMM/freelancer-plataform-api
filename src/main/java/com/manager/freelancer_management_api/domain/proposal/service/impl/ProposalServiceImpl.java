@@ -1,7 +1,9 @@
 package com.manager.freelancer_management_api.domain.proposal.service.impl;
 
+import com.manager.freelancer_management_api.domain.global.exceptions.UnauthorizedAccessException;
 import com.manager.freelancer_management_api.domain.project.entity.Project;
 import com.manager.freelancer_management_api.domain.project.enums.ProjectStatus;
+import com.manager.freelancer_management_api.domain.project.repositories.ProjectRepository;
 import com.manager.freelancer_management_api.domain.project.utils.ProjectAccessHelper;
 import com.manager.freelancer_management_api.domain.proposal.dto.request.CreateProposalRequestDTO;
 import com.manager.freelancer_management_api.domain.proposal.dto.request.ProcessProposalDecisionRequestDTO;
@@ -110,6 +112,15 @@ public class ProposalServiceImpl implements IProposalService {
     @PreAuthorize("isAuthenticated()")
     public ProposalResponseDTO getProposalById(Long proposalId) {
         Proposal proposal = proposalAccessHelper.findProposalById(proposalId);
+        try{
+            userAccessValidator.validateAccess(proposal.getFreelancer().getId());
+        } catch (UnauthorizedAccessException eFreelancer){
+            try {
+                userAccessValidator.validateAccess(proposal.getProject().getUser().getId());
+            } catch (UnauthorizedAccessException eClient) {
+                throw new UnauthorizedAccessException("You don't have access to this proposal.");
+            }
+        }
         return new ProposalResponseDTO(proposal);
     }
 
