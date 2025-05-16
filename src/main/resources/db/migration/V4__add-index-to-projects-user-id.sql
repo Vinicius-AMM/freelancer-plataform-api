@@ -1,0 +1,1 @@
+CREATE INDEX idx_project_user_id ON projects(user_id);
