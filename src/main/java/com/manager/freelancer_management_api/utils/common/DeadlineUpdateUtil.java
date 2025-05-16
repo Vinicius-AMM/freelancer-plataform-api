@@ -1,7 +1,7 @@
 package com.manager.freelancer_management_api.utils.common;
 
 import com.manager.freelancer_management_api.domain.global.entities.Deadline;
-import com.manager.freelancer_management_api.domain.project.exceptions.InvalidDateException;
+import com.manager.freelancer_management_api.domain.global.exceptions.InvalidDateException;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
