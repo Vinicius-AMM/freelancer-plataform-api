@@ -155,10 +155,11 @@ public class ProposalServiceImpl implements IProposalService {
     @Transactional
     @PreAuthorize("hasRole('CLIENT')")
     public void processProposalDecision(Long proposalId, ProcessProposalDecisionRequestDTO decisionRequest) {
-        Proposal proposal = proposalAccessHelper.findProposalAndValidateOwnership(proposalId);
-
+        Proposal proposal = proposalAccessHelper.findProposalById(proposalId);
         Project project = proposal.getProject();
         User client = project.getUser();
+
+        userAccessValidator.validateAccess(client.getId());
 
         if(project.getStatus() != ProjectStatus.OPEN && project.getStatus() != ProjectStatus.NEGOTIATING){
             throw new ProjectNotAvailableException("Proposals can only be accepted or rejected for projects that are OPEN or NEGOTIATING. Current status: " + project.getStatus());
@@ -173,10 +174,15 @@ public class ProposalServiceImpl implements IProposalService {
 
         if(action == ProposalDecisionAction.ACCEPT){
             project.setStatus(ProjectStatus.IN_PROGRESS);
+            projectRepository.save(project);
+            cacheManager.getCache("getProjectCache").evict(project.getId());
         } else if(action == ProposalDecisionAction.DECLINE) {
             proposalRepository.delete(proposal);
-        } else {
-            throw new InvalidProposalDecisionException("Invalid decision action provided.");
+            if(project.getStatus() == ProjectStatus.NEGOTIATING && proposalRepository.countByProjectId(project.getId()) == 0) {
+                project.setStatus(ProjectStatus.OPEN);
+                projectRepository.save(project);
+                cacheManager.getCache("getProjectCache").evict(project.getId());
+            }
         }
     }
 }
