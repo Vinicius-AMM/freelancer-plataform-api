@@ -37,7 +37,7 @@ public class ProjectUpdateHelper {
     }
 
     public boolean updateDeadlineIfNecessary(Project project, UpdateProjectRequestDTO updateData) {
-        if(updateData.startDate() != null || updateData.endDate() != null) {
+        if(updateData.startDate() == null && updateData.endDate() == null) {
             return false;
         }
         DeadlineUpdateUtil.applyDeadlineUpdateLogic(
