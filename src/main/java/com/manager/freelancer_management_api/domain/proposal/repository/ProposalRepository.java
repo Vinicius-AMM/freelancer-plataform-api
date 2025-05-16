@@ -12,4 +12,5 @@ import java.util.UUID;
 public interface ProposalRepository extends JpaRepository<Proposal, Long> {
     Page<Proposal> findAllByProjectId(Long projectId, Pageable pageable);
     Page<Proposal> findAllByFreelancerId(UUID freelancerId, Pageable pageable);
+    long countByProjectId(Long projectId);
 }
