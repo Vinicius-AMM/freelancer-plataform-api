@@ -31,7 +31,7 @@ public class Proposal {
     private BigDecimal offeredValue;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
