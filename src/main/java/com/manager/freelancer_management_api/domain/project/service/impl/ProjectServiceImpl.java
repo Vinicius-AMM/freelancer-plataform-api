@@ -60,7 +60,7 @@ public class ProjectServiceImpl implements IProjectService {
     @Transactional(readOnly = true)
     @PreAuthorize("isAuthenticated()")
     public Page<ProjectResponseDTO> getAllProjects(Pageable pageable) {
-        List<ProjectStatus> statuses = Arrays.asList(ProjectStatus.OPEN, ProjectStatus.IN_PROGRESS);
+        List<ProjectStatus> statuses = Arrays.asList(ProjectStatus.OPEN, ProjectStatus.NEGOTIATING);
 
         Function<Pageable, Page<Project>> fetcher = effectivePageable ->
                 projectRepository.findByStatusIn(statuses, effectivePageable);
