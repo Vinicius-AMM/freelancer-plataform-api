@@ -210,13 +210,13 @@ class ProjectServiceImplTest {
     void deleteProject_shouldDeleteProject_whenOwnerAndPasswordCorrect() {
         String rawPassword = "correctPassword";
         when(projectAccessHelper.findProjectAndValidateOwnership(projectId)).thenReturn(testProject);
-        doNothing().when(passwordValidator).validate(rawPassword, testUser.getPassword(), "Senha incorreta. Não foi possível excluir o projeto.");
+        doNothing().when(passwordValidator).validate(rawPassword, testUser.getPassword(), "Invalid password. It was not possible to delete the project.");
         doNothing().when(projectRepository).delete(testProject);
 
         projectService.deleteProject(projectId, rawPassword);
 
         verify(projectAccessHelper, times(1)).findProjectAndValidateOwnership(projectId);
-        verify(passwordValidator, times(1)).validate(rawPassword, testUser.getPassword(), "Senha incorreta. Não foi possível excluir o projeto.");
+        verify(passwordValidator, times(1)).validate(rawPassword, testUser.getPassword(), "Invalid password. It was not possible to delete the project.");
         verify(projectRepository, times(1)).delete(testProject);
     }
 
