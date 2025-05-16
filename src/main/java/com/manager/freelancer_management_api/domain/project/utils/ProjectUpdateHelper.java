@@ -1,13 +1,9 @@
 package com.manager.freelancer_management_api.domain.project.utils;
 
-import com.manager.freelancer_management_api.domain.global.entities.Deadline;
 import com.manager.freelancer_management_api.domain.project.dto.request.UpdateProjectRequestDTO;
 import com.manager.freelancer_management_api.domain.project.entity.Project;
-import com.manager.freelancer_management_api.domain.project.exceptions.InvalidDateException;
 import com.manager.freelancer_management_api.utils.common.DeadlineUpdateUtil;
 import org.springframework.stereotype.Component;
-
-import java.time.LocalDate;
 
 @Component
 public class ProjectUpdateHelper {
