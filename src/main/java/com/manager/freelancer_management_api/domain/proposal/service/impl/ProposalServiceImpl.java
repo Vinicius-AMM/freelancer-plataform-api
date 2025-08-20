@@ -179,7 +179,9 @@ public class ProposalServiceImpl implements IProposalService {
             project.setEstimatedBudget(proposal.getOfferedValue());
             projectRepository.save(project);
             cacheManager.getCache("getProjectCache").evict(project.getId());
-        } else if(action == ProposalDecisionAction.DECLINE) {
+        }
+
+        if(action == ProposalDecisionAction.DECLINE) {
             proposalRepository.delete(proposal);
             if(project.getStatus() == ProjectStatus.NEGOTIATING && proposalRepository.countByProjectId(project.getId()) == 0) {
                 project.setStatus(ProjectStatus.OPEN);
