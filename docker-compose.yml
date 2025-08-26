@@ -22,6 +22,21 @@ services:
     volumes:
       - freelancer_redis_data:/bitnami/redis
 
+  freelancer-api:
+    build: .
+    container_name: freelancer-api-container
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/freelancer_management_db
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - SPRING_DATA_REDIS_PASSWORD=admin
+    depends_on:
+      - postgres
+      - redis
 volumes:
   freelancer_pg_data:
   freelancer_redis_data:

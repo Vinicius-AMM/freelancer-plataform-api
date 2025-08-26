@@ -23,7 +23,9 @@ public record ProjectResponseDTO(@Schema(example = "Desenvolvimento de API")
                                  @Schema(example = "2025-04-10T10:00:00")
                                  LocalDateTime createdAt,
                                  @Schema(description = "perfil resumido do dono do projeto")
-                                 OtherUserProfileDTO projectOwnerProfile
+                                 OtherUserProfileDTO projectOwnerProfile,
+                                 @Schema(description = "perfil resumido do freelancer aceito no projeto", nullable = true)
+                                 OtherUserProfileDTO freelancerProfile
 ) implements Serializable {
     public ProjectResponseDTO(Project project) {
         this(
@@ -37,7 +39,13 @@ public record ProjectResponseDTO(@Schema(example = "Desenvolvimento de API")
                         project.getUser().getFullName(),
                         project.getUser().getMainUserRole().name(),
                         project.getUser().getCurrentUserRole().name()
-                )
+                ),
+                project.getAcceptedFreelancer() != null ?
+                        new OtherUserProfileDTO(
+                                project.getAcceptedFreelancer().getFullName(),
+                                project.getAcceptedFreelancer().getMainUserRole().name(),
+                                project.getAcceptedFreelancer().getCurrentUserRole().name()
+                        ) : null
         );
     }
 }

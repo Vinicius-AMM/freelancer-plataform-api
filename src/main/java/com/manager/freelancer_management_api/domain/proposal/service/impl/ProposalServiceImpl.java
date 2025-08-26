@@ -158,6 +158,7 @@ public class ProposalServiceImpl implements IProposalService {
         Proposal proposal = proposalAccessHelper.findProposalById(proposalId);
         Project project = proposal.getProject();
         User client = project.getUser();
+        User freelancer = proposal.getFreelancer();
 
         userAccessValidator.validateAccess(client.getId());
 
@@ -174,9 +175,13 @@ public class ProposalServiceImpl implements IProposalService {
 
         if(action == ProposalDecisionAction.ACCEPT){
             project.setStatus(ProjectStatus.IN_PROGRESS);
+            project.setAcceptedFreelancer(freelancer);
+            project.setEstimatedBudget(proposal.getOfferedValue());
             projectRepository.save(project);
             cacheManager.getCache("getProjectCache").evict(project.getId());
-        } else if(action == ProposalDecisionAction.DECLINE) {
+        }
+
+        if(action == ProposalDecisionAction.DECLINE) {
             proposalRepository.delete(proposal);
             if(project.getStatus() == ProjectStatus.NEGOTIATING && proposalRepository.countByProjectId(project.getId()) == 0) {
                 project.setStatus(ProjectStatus.OPEN);

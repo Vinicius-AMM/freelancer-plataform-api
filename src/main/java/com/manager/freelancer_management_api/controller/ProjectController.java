@@ -2,9 +2,7 @@ package com.manager.freelancer_management_api.controller;
 
 import com.manager.freelancer_management_api.domain.global.dto.ApiResponseDTO;
 import com.manager.freelancer_management_api.domain.global.dto.DTOValidationErrorResponse;
-import com.manager.freelancer_management_api.domain.project.dto.request.CreateProjectRequestDTO;
-import com.manager.freelancer_management_api.domain.project.dto.request.DeleteProjectRequestDTO;
-import com.manager.freelancer_management_api.domain.project.dto.request.UpdateProjectRequestDTO;
+import com.manager.freelancer_management_api.domain.project.dto.request.*;
 import com.manager.freelancer_management_api.domain.project.dto.response.ProjectResponseDTO;
 import com.manager.freelancer_management_api.domain.project.service.IProjectService;
 import com.manager.freelancer_management_api.infra.security.SecurityConfig;
@@ -171,4 +169,135 @@ public class ProjectController {
         projectService.deleteProject(id, deleteRequest.rawPassword());
         return buildSuccessResponse(HttpStatus.OK, "Project deleted successfully");
     }
+
+    @PostMapping("/{projectId}/freelancer-complete")
+    @Operation(summary = "Freelancer marca o projeto como concluído")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Projeto marcado como concluído pelo freelancer",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 200, \"message\": \"Project marked as completed by freelancer.\", \"timestamp\": \"...\"}"))),
+            @ApiResponse(responseCode = "400", description = "Requisição inválida ou status do projeto não permite esta ação"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado (usuário não é FREELANCER ou não é o freelancer do projeto)"),
+            @ApiResponse(responseCode = "404", description = "Projeto não encontrado")
+    })
+    public ResponseEntity<ApiResponseDTO> markAsCompletedByFreelancer(@PathVariable Long projectId, @RequestBody(required = false) @Valid ProjectCompletionRequestDTO completionRequest) {
+        projectService.markProjectAsCompletedByFreelancer(projectId, completionRequest);
+        return buildSuccessResponse(HttpStatus.OK, "Project marked as completed by freelancer.");
+    }
+
+    @PostMapping("/{projectId}/client-approve")
+    @Operation(summary = "Cliente aprova a conclusão do projeto")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Conclusão do projeto aprovada pelo cliente",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 200, \"message\": \"Project completion approved.\", \"timestamp\": \"...\"}"))),
+            @ApiResponse(responseCode = "400", description = "Requisição inválida ou status do projeto não permite esta ação"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado (usuário não é CLIENT ou não é o dono do projeto)"),
+            @ApiResponse(responseCode = "404", description = "Projeto não encontrado")
+    })
+    public ResponseEntity<ApiResponseDTO> approveProject(@PathVariable Long projectId, @RequestBody @Valid ApproveProjectRequestDTO approveRequest) {
+        projectService.approveProjectCompletionByClient(projectId, approveRequest);
+        return buildSuccessResponse(HttpStatus.OK, "Project completion approved.");
+    }
+
+    @PostMapping("/{projectId}/request-adjustments")
+    @Operation(summary = "Cliente solicita ajustes no projeto")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ajustes solicitados para o projeto",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiResponseDTO.class),
+                            examples = @ExampleObject(value = "{\"statusCode\": 200, \"message\": \"Project adjustments requested.\", \"timestamp\": \"...\"}"))),
+            @ApiResponse(responseCode = "400", description = "Requisição inválida (ex: detalhes de ajuste em branco) ou status do projeto não permite esta ação",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = DTOValidationErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Acesso negado (usuário não é CLIENT ou não é o dono do projeto)"),
+            @ApiResponse(responseCode = "404", description = "Projeto não encontrado")
+    })
+    public ResponseEntity<ApiResponseDTO> requestAdjustments(@PathVariable Long projectId, @RequestBody @Valid ProjectAdjustmentRequestDTO adjustmentRequest) {
+        projectService.requestProjectAdjustments(projectId, adjustmentRequest);
+        return buildSuccessResponse(HttpStatus.OK, "Project adjustments requested.");
+    }
+
+    @GetMapping("/client/completed")
+    @Operation(summary = "Busca os projetos concluídos (status FINISHED) do cliente logado")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Projetos concluídos do cliente retornados com sucesso.",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = ProjectResponseDTO.class)))),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado (usuário não é CLIENT)")
+    })
+    public ResponseEntity<Page<ProjectResponseDTO>> getCompletedProjectsForClient(@ParameterObject Pageable pageable) {
+        Page<ProjectResponseDTO> projects = projectService.getCompletedProjectsForClient(pageable);
+        return ResponseEntity.ok(projects);
+    }
+
+    @GetMapping("/freelancer/completed")
+    @Operation(summary = "Busca os projetos concluídos (status FINISHED) do freelancer logado")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Projetos concluídos do freelancer retornados com sucesso.",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = ProjectResponseDTO.class)))),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado (usuário não é FREELANCER)")
+    })
+    public ResponseEntity<Page<ProjectResponseDTO>> getCompletedProjectsForFreelancer(@ParameterObject Pageable pageable) {
+        Page<ProjectResponseDTO> projects = projectService.getCompletedProjectsForFreelancer(pageable);
+        return ResponseEntity.ok(projects);
+    }
+
+    @GetMapping("/client/pending-approval")
+    @Operation(summary = "Busca projetos do cliente que aguardam sua aprovação (status COMPLETED_BY_FREELANCER)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Projetos pendentes de aprovação retornados com sucesso.",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = ProjectResponseDTO.class)))),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado (usuário não é CLIENT)")
+    })
+    public ResponseEntity<Page<ProjectResponseDTO>> getProjectsPendingApprovalForClient(@ParameterObject Pageable pageable) {
+        Page<ProjectResponseDTO> projects = projectService.getProjectsPendingApprovalForClient(pageable);
+        return ResponseEntity.ok(projects);
+    }
+
+    @GetMapping("/freelancer/active")
+    @Operation(summary = "Busca projetos em andamento ou que necessitam de ajustes para o freelancer logado (status IN_PROGRESS, NEEDING_ADJUSTMENTS)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Projetos ativos do freelancer retornados com sucesso.",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = ProjectResponseDTO.class)))),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado (usuário não é FREELANCER)")
+    })
+    public ResponseEntity<Page<ProjectResponseDTO>> getProjectsInProgressAndNeedingAdjustmentsForFreelancer(@ParameterObject Pageable pageable) {
+        Page<ProjectResponseDTO> projects = projectService.getProjectsInProgressAndNeedingAdjustmentsForFreelancer(pageable);
+        return ResponseEntity.ok(projects);
+    }
+
+    @GetMapping("/client/active")
+    @Operation(summary = "Busca projetos em andamento ou que necessitam de ajustes para o cliente logado (status IN_PROGRESS, NEEDING_ADJUSTMENTS)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Projetos ativos do cliente retornados com sucesso.",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = ProjectResponseDTO.class)))),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado (usuário não é CLIENT)")
+    })
+    public ResponseEntity<Page<ProjectResponseDTO>> getProjectsInProgressAndNeedingAdjustmentsForClient(@ParameterObject Pageable pageable) {
+        Page<ProjectResponseDTO> projects = projectService.getProjectsInProgressAndNeedingAdjustmentsForClient(pageable);
+        return ResponseEntity.ok(projects);
+    }
+
+    @GetMapping("/freelancer/adjustments-requested")
+    @Operation(summary = "Busca projetos que necessitam de ajustes (status NEEDING_ADJUSTMENTS) para o freelancer logado")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Projetos que necessitam de ajustes retornados com sucesso.",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = ProjectResponseDTO.class)))),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado (usuário não é FREELANCER)")
+    })
+    public ResponseEntity<Page<ProjectResponseDTO>> getProjectsNeedingAdjustmentsForFreelancer(@ParameterObject Pageable pageable) {
+        Page<ProjectResponseDTO> projects = projectService.getProjectsNeedingAdjustmentsForFreelancer(pageable);
+        return ResponseEntity.ok(projects);
+    }
+
 }
