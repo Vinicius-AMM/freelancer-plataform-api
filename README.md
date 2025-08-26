@@ -13,7 +13,7 @@ A API gerencia todo o ciclo de vida do projeto, desde a criação e negociação
 
 ## 🚀 Tecnologias Utilizadas
 
-- **Java 21
+- **Java 21**
 - **Spring Boot 3.x**
 - **Spring Data JPA**
 - **PostgreSQL**
