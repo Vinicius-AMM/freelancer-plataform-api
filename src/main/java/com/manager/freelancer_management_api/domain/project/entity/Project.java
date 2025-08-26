@@ -47,4 +47,9 @@ public class Project {
     @JsonIgnore
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @JoinColumn(name = "accepted_freelancer_id", nullable = true)
+    private User acceptedFreelancer;
 }
